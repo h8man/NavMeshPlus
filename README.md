@@ -11,8 +11,9 @@ To use it in your project:
 
 1. Copy repo into your Asset folder 
 2. Create Empty Object in scene root and rotated respectively to Tilemap (x90;y0;z0)
-3. Add NavMeshSurface2d component to Empty Object
-4. In NavMeshSurface2d select Collection Object to Grid, Default Area to Unwalkable.
+3. It is mandatory that at least one Tilemap has TilemapCollider2d and CompositeCollider2d components
+4. Add NavMeshSurface2d component to Empty Object
+5. In NavMeshSurface2d select Collection Object to Grid, Default Area to Unwalkable.
 
 How does it works:
 
