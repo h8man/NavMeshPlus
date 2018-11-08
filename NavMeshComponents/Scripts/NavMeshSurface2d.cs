@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine.Tilemaps;
 
@@ -310,7 +311,7 @@ namespace UnityEngine.AI
                         }
                     }
                 }
-                Debug.Log("sources "+sources.Count);
+                Debug.Log("Sources "+sources.Count);
                 //var composite = grid.GetComponentInChildren<CompositeCollider2D>();
                 //var count = composite.pathCount;
                 ////TODO: 100
@@ -363,9 +364,12 @@ namespace UnityEngine.AI
             {
                 var grid = FindObjectOfType<Grid>();
                 var colider = grid.GetComponentInChildren<CompositeCollider2D>();
+                if (colider == null)
+                {
+                    throw new NullReferenceException("At least one CompositeCollider2D is required");
+                }
                 var bounds = GetWorldBounds(worldToLocal , colider.bounds);
                 bounds.Expand(0.1f);
-                Debug.Log("BOUNDS " + bounds);
                 return bounds;
             }
 
