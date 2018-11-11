@@ -287,46 +287,38 @@ namespace UnityEngine.AI
             {
                 NavMeshBuilder.CollectSources(transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
                 var grid = FindObjectOfType<Grid>();
-                var colider = grid.GetComponentInChildren<CompositeCollider2D>();
-                var tilemap = colider.GetComponent<Tilemap>();
-                Debug.Log("Walkable "+colider.bounds);
-                sources.Add(BoxSource(colider.bounds.size.x, colider.bounds.size.y));
-
-                var bound = tilemap.cellBounds;
-                var vec3int = new Vector3Int(0,0,0);
-                var size = new Vector3(tilemap.layoutGrid.cellSize.x, .1f, tilemap.layoutGrid.cellSize.y);
-                for (int i = bound.xMin; i < bound.xMax; i++) {
-                    for (int j = bound.yMin; j < bound.yMax; j++) {
-                        vec3int.x = i;
-                        vec3int.y = j;
-                        if (tilemap.HasTile(vec3int))
+                bool flag = true;
+                foreach (var tilemap in grid.GetComponentsInChildren<Tilemap>())
+                {
+                    if (flag)
+                    {
+                        Debug.Log("Walkable " + tilemap.localBounds);
+                        sources.Add(BoxSource(tilemap.localBounds.size.x, tilemap.localBounds.size.y));
+                        flag = false;
+                    }
+                    int area = m_DefaultArea;
+                    var modifier = tilemap.GetComponent<NavMeshModifier>();
+                    if (modifier != null && modifier.overrideArea)
+                    {
+                        area = modifier.area;
+                    }
+                    if (modifier != null && !modifier.ignoreFromBuild)
+                    {
+                        CollectGridSources(sources, tilemap, area);
+                    }
+                    else
+                    {
+                        var collider = tilemap.GetComponent<TilemapCollider2D>();
+                        if (collider != null &&
+                            (modifier == null || (modifier != null && !modifier.ignoreFromBuild)))
                         {
-                            var src = new NavMeshBuildSource();
-                            src.transform = Matrix4x4.Translate(tilemap.GetCellCenterWorld(vec3int));
-                            //Debug.Log(src.transform);
-                            src.shape = NavMeshBuildSourceShape.Box;
-                            src.size = size;
-                            src.area = m_DefaultArea;
-                            sources.Add(src);
+                            CollectGridSources(sources, tilemap, area);
                         }
                     }
                 }
-                Debug.Log("Sources "+sources.Count);
-                //var composite = grid.GetComponentInChildren<CompositeCollider2D>();
-                //var count = composite.pathCount;
-                ////TODO: 100
-                //var points = new Vector2[100];
-                //for (int i = 0; i < count; i++)
-                //{
-                //    var len = composite.GetPath(i, points);
-                //    for (int j = 0; j < len; j++)
-                //    {
-                //        Debug.Log("Box:" + i + "-" + j + " = [" + points[j].x + ";" + points[j].y + "]");
-                //    }
-                //}
-            }
 
-            //sources.Add(BoxSource(100));
+                Debug.Log("Sources " + sources.Count);
+            }
 
             if (m_IgnoreNavMeshAgent)
                 sources.RemoveAll((x) => (x.component != null && x.component.gameObject.GetComponent<NavMeshAgent>() != null));
@@ -337,6 +329,30 @@ namespace UnityEngine.AI
             AppendModifierVolumes(ref sources);
 
             return sources;
+        }
+
+        private void CollectGridSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area)
+        {
+            var bound = tilemap.cellBounds;
+            var vec3int = new Vector3Int(0, 0, 0);
+            var size = new Vector3(tilemap.layoutGrid.cellSize.x, .1f, tilemap.layoutGrid.cellSize.y);
+            for (int i = bound.xMin; i < bound.xMax; i++)
+            {
+                for (int j = bound.yMin; j < bound.yMax; j++)
+                {
+                    vec3int.x = i;
+                    vec3int.y = j;
+                    if (tilemap.HasTile(vec3int))
+                    {
+                        var src = new NavMeshBuildSource();
+                        src.transform = Matrix4x4.Translate(tilemap.GetCellCenterWorld(vec3int));
+                        src.shape = NavMeshBuildSourceShape.Box;
+                        src.size = size;
+                        src.area = area;
+                        sources.Add(src);
+                    }
+                }
+            }
         }
 
         static Vector3 Abs(Vector3 v)
@@ -363,12 +379,12 @@ namespace UnityEngine.AI
             if (m_CollectObjects == CollectObjects2d.Grid)
             {
                 var grid = FindObjectOfType<Grid>();
-                var colider = grid.GetComponentInChildren<CompositeCollider2D>();
-                if (colider == null)
+                var tilemap = grid.GetComponentInChildren<Tilemap>();
+                if (tilemap == null)
                 {
-                    throw new NullReferenceException("At least one CompositeCollider2D is required");
+                    throw new NullReferenceException("Add at least one tilemap");
                 }
-                var bounds = GetWorldBounds(worldToLocal , colider.bounds);
+                var bounds = GetWorldBounds(worldToLocal , tilemap.localBounds);
                 bounds.Expand(0.1f);
                 return bounds;
             }
