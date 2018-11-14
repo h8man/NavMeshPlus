@@ -1,6 +1,8 @@
 # NavMeshPlus
 
-This repo is a proof of concept of NavMeshComponents for Unity 2D
+# Unity NavMesh 2D Pathfinding 
+This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D
+It is explores NavMeshComponents abilities for Unity 2D
 https://docs.unity3d.com/Manual/class-NavMeshSurface.html
 
 # 2D NavMesh
