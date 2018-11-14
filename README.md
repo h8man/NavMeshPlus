@@ -1,9 +1,11 @@
 # NavMeshPlus
 
+NavMesh building components provide you with ability to create navigation meshes that are generated automatically from your Scene
+geometry, which allows characters to move intelligently around the game world.
+
 # Unity NavMesh 2D Pathfinding 
-This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D
-It is explores NavMeshComponents abilities for Unity 2D
-https://docs.unity3d.com/Manual/class-NavMeshSurface.html
+
+This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D. It is explores NavMeshComponents abilities for Unity 2D. (https://docs.unity3d.com/Manual/class-NavMeshSurface.html)
 
 # 2D NavMesh
 
