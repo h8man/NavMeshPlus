@@ -7,6 +7,11 @@ geometry, which allows characters to move intelligently around the game world.
 
 This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D. It is explores NavMeshComponents abilities for Unity 2D. (https://docs.unity3d.com/Manual/class-NavMeshSurface.html)
 
+# Info
+
+Demo: https://github.com/h8man/RedHotSweetPepper
+Discuss: https://forum.unity.com/threads/2d-navmesh-pathfinding.503596/
+
 # 2D NavMesh
 
 In repo you will find implementation of NavMeshSurface2d for tilemap top down games.
