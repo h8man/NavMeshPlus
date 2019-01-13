@@ -335,7 +335,7 @@ namespace UnityEngine.AI
         {
             var bound = tilemap.cellBounds;
             var vec3int = new Vector3Int(0, 0, 0);
-            var size = new Vector3(tilemap.layoutGrid.cellSize.x, .1f, tilemap.layoutGrid.cellSize.y);
+            var size = new Vector3(tilemap.layoutGrid.cellSize.x, tilemap.layoutGrid.cellSize.y, tilemap.layoutGrid.cellSize.y);
             for (int i = bound.xMin; i < bound.xMax; i++)
             {
                 for (int j = bound.yMin; j < bound.yMax; j++)
