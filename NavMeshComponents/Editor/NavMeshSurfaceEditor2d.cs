@@ -1,6 +1,9 @@
+#define NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEditor.Experimental.SceneManagement;
 using UnityEditor.IMGUI.Controls;
 using UnityEditor.SceneManagement;
 using UnityEditorInternal;
@@ -26,6 +29,9 @@ namespace UnityEditor.AI
         SerializedProperty m_UseGeometry;
         SerializedProperty m_VoxelSize;
 
+#if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
+        SerializedProperty m_NavMeshData;
+#endif
         class Styles
         {
             public readonly GUIContent m_LayerMask = new GUIContent("Include Layers");
@@ -38,15 +44,6 @@ namespace UnityEditor.AI
             public readonly GUIContent m_ShowPolyMesh = new GUIContent("Show Poly Mesh");
             public readonly GUIContent m_ShowPolyMeshDetail = new GUIContent("Show Poly Mesh Detail");
         }
-
-        struct AsyncBakeOperation
-        {
-            public NavMeshSurface2d surface;
-            public NavMeshData bakeData;
-            public AsyncOperation bakeOperation;
-        }
-
-        static List<AsyncBakeOperation> s_BakeOperations = new List<AsyncBakeOperation>();
 
         static Styles s_Styles;
 
@@ -78,61 +75,15 @@ namespace UnityEditor.AI
             m_UseGeometry = serializedObject.FindProperty("m_UseGeometry");
             m_VoxelSize = serializedObject.FindProperty("m_VoxelSize");
 
+#if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
+            m_NavMeshData = serializedObject.FindProperty("m_NavMeshData");
+#endif
             NavMeshVisualizationSettings.showNavigation++;
         }
 
         void OnDisable()
         {
             NavMeshVisualizationSettings.showNavigation--;
-        }
-
-        static string GetAndEnsureTargetPath(NavMeshSurface2d surface)
-        {
-            // Create directory for the asset if it does not exist yet.
-            var activeScenePath = surface.gameObject.scene.path;
-
-            var targetPath = "Assets";
-            if (!string.IsNullOrEmpty(activeScenePath))
-                targetPath = Path.Combine(Path.GetDirectoryName(activeScenePath), Path.GetFileNameWithoutExtension(activeScenePath));
-            if (!Directory.Exists(targetPath))
-                Directory.CreateDirectory(targetPath);
-            return targetPath;
-        }
-
-        static void CreateNavMeshAsset(NavMeshSurface2d surface)
-        {
-            var targetPath = GetAndEnsureTargetPath(surface);
-
-            var combinedAssetPath = Path.Combine(targetPath, "NavMesh-" + surface.name + ".asset");
-            combinedAssetPath = AssetDatabase.GenerateUniqueAssetPath(combinedAssetPath);
-            AssetDatabase.CreateAsset(surface.navMeshData, combinedAssetPath);
-        }
-
-        static NavMeshData GetNavMeshAssetToDelete(NavMeshSurface2d navSurface)
-        {
-            var prefabType = PrefabUtility.GetPrefabType(navSurface);
-            if (prefabType == PrefabType.PrefabInstance || prefabType == PrefabType.DisconnectedPrefabInstance)
-            {
-                // Don't allow deleting the asset belonging to the prefab parent
-                var parentSurface = PrefabUtility.GetCorrespondingObjectFromSource(navSurface) as NavMeshSurface2d;
-                if (parentSurface && navSurface.navMeshData == parentSurface.navMeshData)
-                    return null;
-            }
-            return navSurface.navMeshData;
-        }
-
-        void ClearSurface(NavMeshSurface2d navSurface)
-        {
-            var assetToDelete = GetNavMeshAssetToDelete(navSurface);
-            navSurface.RemoveData();
-            navSurface.navMeshData = null;
-            EditorUtility.SetDirty(navSurface);
-
-            if (assetToDelete)
-            {
-                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(assetToDelete));
-                EditorSceneManager.MarkSceneDirty(navSurface.gameObject.scene);
-            }
         }
 
         Bounds GetBounds()
@@ -181,8 +132,6 @@ namespace UnityEditor.AI
 
             EditorGUILayout.PropertyField(m_LayerMask, s_Styles.m_LayerMask);
             EditorGUILayout.PropertyField(m_UseGeometry);
-
-            EditorGUILayout.Space();
 
             EditorGUILayout.Space();
 
@@ -287,45 +236,46 @@ namespace UnityEditor.AI
             if (hadError)
                 EditorGUILayout.Space();
 
+#if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
+            var nmdRect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
+
+            EditorGUI.BeginProperty(nmdRect, GUIContent.none, m_NavMeshData);
+            var rectLabel = EditorGUI.PrefixLabel(nmdRect, GUIUtility.GetControlID(FocusType.Passive), new GUIContent(m_NavMeshData.displayName));
+            EditorGUI.EndProperty();
+
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUI.BeginProperty(nmdRect, GUIContent.none, m_NavMeshData);
+                EditorGUI.ObjectField(rectLabel, m_NavMeshData, GUIContent.none);
+                EditorGUI.EndProperty();
+            }
+#endif
             using (new EditorGUI.DisabledScope(Application.isPlaying || m_AgentTypeID.intValue == -1))
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(EditorGUIUtility.labelWidth);
                 if (GUILayout.Button("Clear"))
                 {
-                    foreach (NavMeshSurface2d s in targets)
-                        ClearSurface(s);
+                    NavMeshAssetManager2d.instance.ClearSurfaces(targets);
                     SceneView.RepaintAll();
                 }
 
                 if (GUILayout.Button("Bake"))
                 {
-                    // Remove first to avoid double registration of the callback
-                    EditorApplication.update -= UpdateAsyncBuildOperations;
-                    EditorApplication.update += UpdateAsyncBuildOperations;
-
-                    foreach (NavMeshSurface2d surf in targets)
-                    {
-                        var oper = new AsyncBakeOperation();
-
-                        oper.bakeData = InitializeBakeData(surf);
-                        oper.bakeOperation = surf.UpdateNavMesh(oper.bakeData);
-                        oper.surface = surf;
-
-                        s_BakeOperations.Add(oper);
-                    }
+                    NavMeshAssetManager2d.instance.StartBakingSurfaces(targets);
                 }
 
                 GUILayout.EndHorizontal();
             }
 
             // Show progress for the selected targets
-            for (int i = s_BakeOperations.Count - 1; i >= 0; --i)
+            var bakeOperations = NavMeshAssetManager2d.instance.GetBakeOperations();
+            for (int i = bakeOperations.Count - 1; i >= 0; --i)
             {
-                if (!targets.Contains(s_BakeOperations[i].surface))
+                if (!targets.Contains(bakeOperations[i].surface))
                     continue;
 
-                var oper = s_BakeOperations[i].bakeOperation;
+                var oper = bakeOperations[i].bakeOperation;
                 if (oper == null)
                     continue;
 
@@ -340,9 +290,9 @@ namespace UnityEditor.AI
 
                 if (GUILayout.Button("Cancel", EditorStyles.miniButton))
                 {
-                    var bakeData = s_BakeOperations[i].bakeData;
+                    var bakeData = bakeOperations[i].bakeData;
                     UnityEngine.AI.NavMeshBuilder.Cancel(bakeData);
-                    s_BakeOperations.RemoveAt(i);
+                    bakeOperations.RemoveAt(i);
                 }
 
                 EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(), p, "Baking: " + (int)(100 * p) + "%");
@@ -351,42 +301,6 @@ namespace UnityEditor.AI
 
                 GUILayout.EndHorizontal();
             }
-        }
-
-        static NavMeshData InitializeBakeData(NavMeshSurface2d surface)
-        {
-            //TODO:
-            var emptySources = new List<NavMeshBuildSource>();
-            var emptyBounds = new Bounds();
-            return UnityEngine.AI.NavMeshBuilder.BuildNavMeshData(surface.GetBuildSettings(), emptySources, emptyBounds
-                , surface.transform.position, surface.transform.rotation);
-        }
-
-        static void UpdateAsyncBuildOperations()
-        {
-            foreach (var oper in s_BakeOperations)
-            {
-                if (oper.surface == null || oper.bakeOperation == null)
-                    continue;
-
-                if (oper.bakeOperation.isDone)
-                {
-                    var surface = oper.surface;
-                    var delete = GetNavMeshAssetToDelete(surface);
-                    if (delete != null)
-                        AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(delete));
-
-                    surface.RemoveData();
-                    surface.navMeshData = oper.bakeData;
-                    if (surface.isActiveAndEnabled)
-                        surface.AddData();
-                    CreateNavMeshAsset(surface);
-                    EditorSceneManager.MarkSceneDirty(surface.gameObject.scene);
-                }
-            }
-            s_BakeOperations.RemoveAll(o => o.bakeOperation == null || o.bakeOperation.isDone);
-            if (s_BakeOperations.Count == 0)
-                EditorApplication.update -= UpdateAsyncBuildOperations;
         }
 
         [DrawGizmo(GizmoType.Selected | GizmoType.Active | GizmoType.Pickable)]
@@ -472,7 +386,7 @@ namespace UnityEditor.AI
             }
         }
 
-        [MenuItem("GameObject/AI/NavMesh Surface 2S", false, 2000)]
+        [MenuItem("GameObject/AI/NavMesh Surface 2D", false, 2000)]
         public static void CreateNavMeshSurface(MenuCommand menuCommand)
         {
             var parent = menuCommand.context as GameObject;

@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine.Tilemaps;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif
 
 namespace UnityEngine.AI
 {
@@ -12,7 +16,7 @@ namespace UnityEngine.AI
         Grid = 3,
     }
 
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     [DefaultExecutionOrder(-102)]
     [AddComponentMenu("Navigation/NavMeshSurface2d", 30)]
     [HelpURL("https://github.com/Unity-Technologies/NavMeshComponents#documentation-draft")]
@@ -104,6 +108,16 @@ namespace UnityEngine.AI
 
         public void AddData()
         {
+#if UNITY_EDITOR
+            var isInPreviewScene = EditorSceneManager.IsPreviewSceneObject(this);
+            var isPrefab = isInPreviewScene || EditorUtility.IsPersistent(this);
+            if (isPrefab)
+            {
+                //Debug.LogFormat("NavMeshData from {0}.{1} will not be added to the NavMesh world because the gameObject is a prefab.",
+                //    gameObject.name, name);
+                return;
+            }
+#endif
             if (m_NavMeshDataInstance.valid)
                 return;
 
@@ -185,6 +199,16 @@ namespace UnityEngine.AI
 
         static void Register(NavMeshSurface2d surface)
         {
+#if UNITY_EDITOR
+            var isInPreviewScene = EditorSceneManager.IsPreviewSceneObject(surface);
+            var isPrefab = isInPreviewScene || EditorUtility.IsPersistent(surface);
+            if (isPrefab)
+            {
+                //Debug.LogFormat("NavMeshData from {0}.{1} will not be added to the NavMesh world because the gameObject is a prefab.",
+                //    surface.gameObject.name, surface.name);
+                return;
+            }
+#endif
             if (s_NavMeshSurfaces.Count == 0)
                 NavMesh.onPreUpdate += UpdateActive;
 
@@ -208,6 +232,11 @@ namespace UnityEngine.AI
 
         void AppendModifierVolumes(ref List<NavMeshBuildSource> sources)
         {
+#if UNITY_EDITOR
+            var myStage = StageUtility.GetStageHandle(gameObject);
+            if (!myStage.IsValid())
+                return;
+#endif
             // Modifiers
             List<NavMeshModifierVolume> modifiers;
             if (m_CollectObjects == CollectObjects2d.Children)
@@ -226,6 +255,10 @@ namespace UnityEngine.AI
                     continue;
                 if (!m.AffectsAgentType(m_AgentTypeID))
                     continue;
+#if UNITY_EDITOR
+                if (!myStage.Contains(m.gameObject))
+                    continue;
+#endif
                 var mcenter = m.transform.TransformPoint(m.center);
                 var scale = m.transform.lossyScale;
                 var msize = new Vector3(m.size.x * Mathf.Abs(scale.x), m.size.y * Mathf.Abs(scale.y), m.size.z * Mathf.Abs(scale.z));
@@ -269,57 +302,57 @@ namespace UnityEngine.AI
                 markups.Add(markup);
             }
 
-            if (m_CollectObjects == CollectObjects2d.All)
+#if UNITY_EDITOR
+            if (!EditorApplication.isPlaying)
             {
-                NavMeshBuilder.CollectSources(null, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
-            }
-            else if (m_CollectObjects == CollectObjects2d.Children)
-            {
-                NavMeshBuilder.CollectSources(transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
-            }
-            else if (m_CollectObjects == CollectObjects2d.Volume)
-            {
-                Matrix4x4 localToWorld = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
-                var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
-                NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
-            }
-            if (m_CollectObjects == CollectObjects2d.Grid)
-            {
-                NavMeshBuilder.CollectSources(transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
-                var grid = FindObjectOfType<Grid>();
-                bool flag = true;
-                foreach (var tilemap in grid.GetComponentsInChildren<Tilemap>())
+                if (m_CollectObjects == CollectObjects2d.All)
                 {
-                    if (flag)
-                    {
-                        Debug.Log("Walkable " + tilemap.localBounds);
-                        sources.Add(BoxSource(tilemap.localBounds.size.x, tilemap.localBounds.size.y));
-                        flag = false;
-                    }
-                    int area = m_DefaultArea;
-                    var modifier = tilemap.GetComponent<NavMeshModifier>();
-                    if (modifier != null && modifier.overrideArea)
-                    {
-                        area = modifier.area;
-                    }
-                    if (modifier != null && !modifier.ignoreFromBuild)
-                    {
-                        CollectGridSources(sources, tilemap, area);
-                    }
-                    else
-                    {
-                        var collider = tilemap.GetComponent<TilemapCollider2D>();
-                        if (collider != null &&
-                            (modifier == null || (modifier != null && !modifier.ignoreFromBuild)))
-                        {
-                            CollectGridSources(sources, tilemap, area);
-                        }
-                    }
+                    UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
+                        null, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
+                else if (m_CollectObjects == CollectObjects2d.Children)
+                {
+                    UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
+                        transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
+                }
+                else if (m_CollectObjects == CollectObjects2d.Volume)
+                {
+                    Matrix4x4 localToWorld = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
+                    var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
 
-                Debug.Log("Sources " + sources.Count);
+                    UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
+                        worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
+                }
+                if (m_CollectObjects == CollectObjects2d.Grid)
+                {
+                    UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
+                        transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
+                    NewMethod(sources);
+                }
             }
-
+            else
+#endif
+            {
+                if (m_CollectObjects == CollectObjects2d.All)
+                {
+                    NavMeshBuilder.CollectSources(null, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
+                }
+                else if (m_CollectObjects == CollectObjects2d.Children)
+                {
+                    NavMeshBuilder.CollectSources(transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
+                }
+                else if (m_CollectObjects == CollectObjects2d.Volume)
+                {
+                    Matrix4x4 localToWorld = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
+                    var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
+                    NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
+                }
+                if (m_CollectObjects == CollectObjects2d.Grid)
+                {
+                    NavMeshBuilder.CollectSources(transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
+                    NewMethod(sources);
+                }
+            }
             if (m_IgnoreNavMeshAgent)
                 sources.RemoveAll((x) => (x.component != null && x.component.gameObject.GetComponent<NavMeshAgent>() != null));
 
@@ -329,6 +362,42 @@ namespace UnityEngine.AI
             AppendModifierVolumes(ref sources);
 
             return sources;
+        }
+
+        private void NewMethod(List<NavMeshBuildSource> sources)
+        {
+            var grid = FindObjectOfType<Grid>();
+            bool flag = true;
+            foreach (var tilemap in grid.GetComponentsInChildren<Tilemap>())
+            {
+                if (flag)
+                {
+                    Debug.Log("Walkable " + tilemap.localBounds);
+                    sources.Add(BoxSource(tilemap.localBounds.size.x, tilemap.localBounds.size.y));
+                    flag = false;
+                }
+                int area = m_DefaultArea;
+                var modifier = tilemap.GetComponent<NavMeshModifier>();
+                if (modifier != null && modifier.overrideArea)
+                {
+                    area = modifier.area;
+                }
+                if (modifier != null && !modifier.ignoreFromBuild)
+                {
+                    CollectGridSources(sources, tilemap, area);
+                }
+                else
+                {
+                    var collider = tilemap.GetComponent<TilemapCollider2D>();
+                    if (collider != null &&
+                        (modifier == null || (modifier != null && !modifier.ignoreFromBuild)))
+                    {
+                        CollectGridSources(sources, tilemap, area);
+                    }
+                }
+            }
+
+            Debug.Log("Sources " + sources.Count);
         }
 
         private void CollectGridSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area)
@@ -462,8 +531,9 @@ namespace UnityEngine.AI
                 return false;
 
             // Prefab parent owns the asset reference
-            var prefabType = UnityEditor.PrefabUtility.GetPrefabType(this);
-            if (prefabType == UnityEditor.PrefabType.Prefab)
+            var isInPreviewScene = EditorSceneManager.IsPreviewSceneObject(this);
+            var isPersistentObject = EditorUtility.IsPersistent(this);
+            if (isInPreviewScene || isPersistentObject)
                 return false;
 
             // An instance can share asset reference only with its prefab parent
