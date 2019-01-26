@@ -9,7 +9,10 @@ This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D. It is ex
 
 # Info
 
+HOW TO: https://github.com/h8man/NavMeshPlus/blob/master/navmeshplus.pdf
+
 Demo: https://github.com/h8man/RedHotSweetPepper
+
 Discuss: https://forum.unity.com/threads/2d-navmesh-pathfinding.503596/
 
 # 2D NavMesh
