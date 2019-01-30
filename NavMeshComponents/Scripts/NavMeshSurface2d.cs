@@ -327,7 +327,7 @@ namespace UnityEngine.AI
                 {
                     UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
                         transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
-                    NewMethod(sources);
+                    CollectGridSources(sources);
                 }
             }
             else
@@ -350,7 +350,7 @@ namespace UnityEngine.AI
                 if (m_CollectObjects == CollectObjects2d.Grid)
                 {
                     NavMeshBuilder.CollectSources(transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
-                    NewMethod(sources);
+                    CollectGridSources(sources);
                 }
             }
             if (m_IgnoreNavMeshAgent)
@@ -364,7 +364,7 @@ namespace UnityEngine.AI
             return sources;
         }
 
-        private void NewMethod(List<NavMeshBuildSource> sources)
+        private void CollectGridSources(List<NavMeshBuildSource> sources)
         {
             var grid = FindObjectOfType<Grid>();
             bool flag = true;
@@ -372,8 +372,8 @@ namespace UnityEngine.AI
             {
                 if (flag)
                 {
-                    Debug.Log("Walkable " + tilemap.localBounds);
-                    sources.Add(BoxSource(tilemap.localBounds.size.x, tilemap.localBounds.size.y));
+                    Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
+                    sources.Add(BoxBoundSource(tilemap.localBounds));
                     flag = false;
                 }
                 int area = m_DefaultArea;
@@ -384,7 +384,7 @@ namespace UnityEngine.AI
                 }
                 if (modifier != null && !modifier.ignoreFromBuild)
                 {
-                    CollectGridSources(sources, tilemap, area);
+                    CollectTileSources(sources, tilemap, area);
                 }
                 else
                 {
@@ -392,7 +392,7 @@ namespace UnityEngine.AI
                     if (collider != null &&
                         (modifier == null || (modifier != null && !modifier.ignoreFromBuild)))
                     {
-                        CollectGridSources(sources, tilemap, area);
+                        CollectTileSources(sources, tilemap, area);
                     }
                 }
             }
@@ -400,7 +400,7 @@ namespace UnityEngine.AI
             Debug.Log("Sources " + sources.Count);
         }
 
-        private void CollectGridSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area)
+        private void CollectTileSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area)
         {
             var bound = tilemap.cellBounds;
             var vec3int = new Vector3Int(0, 0, 0);
@@ -453,8 +453,10 @@ namespace UnityEngine.AI
                 {
                     throw new NullReferenceException("Add at least one tilemap");
                 }
+                //Debug.Log($"From Local Bounds [{tilemap.name}]: {tilemap.localBounds}");
                 var bounds = GetWorldBounds(worldToLocal , tilemap.localBounds);
                 bounds.Expand(0.1f);
+                //Debug.Log($"To World Bounds: {bounds}");
                 return bounds;
             }
 
@@ -504,21 +506,13 @@ namespace UnityEngine.AI
                 AddData();
             }
         }
-        public NavMeshBuildSource BoxSource(float size=10)
+
+        private NavMeshBuildSource BoxBoundSource(Bounds localBounds)
         {
             var src = new NavMeshBuildSource();
-            src.transform = transform.localToWorldMatrix;
+            src.transform = Matrix4x4.Translate(localBounds.center);
             src.shape = NavMeshBuildSourceShape.Box;
-            src.size = new Vector3(size, 0.1f, size);
-            src.area = 0;
-            return src;
-        }
-        public NavMeshBuildSource BoxSource(float sizex , float sizey)
-        {
-            var src = new NavMeshBuildSource();
-            src.transform = transform.localToWorldMatrix;
-            src.shape = NavMeshBuildSourceShape.Box;
-            src.size = new Vector3(sizex, 0.1f, sizey);
+            src.size = localBounds.size;
             src.area = 0;
             return src;
         }
