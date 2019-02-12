@@ -22,6 +22,7 @@ namespace UnityEditor.AI
         SerializedProperty m_CollectObjects;
         SerializedProperty m_DefaultArea;
         SerializedProperty m_LayerMask;
+        SerializedProperty m_UseMeshPrefab;
         SerializedProperty m_OverrideTileSize;
         SerializedProperty m_OverrideVoxelSize;
         SerializedProperty m_Size;
@@ -68,6 +69,7 @@ namespace UnityEditor.AI
             m_CollectObjects = serializedObject.FindProperty("m_CollectObjects");
             m_DefaultArea = serializedObject.FindProperty("m_DefaultArea");
             m_LayerMask = serializedObject.FindProperty("m_LayerMask");
+            m_UseMeshPrefab = serializedObject.FindProperty("m_UseMeshPrefab");
             m_OverrideTileSize = serializedObject.FindProperty("m_OverrideTileSize");
             m_OverrideVoxelSize = serializedObject.FindProperty("m_OverrideVoxelSize");
             m_Size = serializedObject.FindProperty("m_Size");
@@ -132,6 +134,11 @@ namespace UnityEditor.AI
 
             EditorGUILayout.PropertyField(m_LayerMask, s_Styles.m_LayerMask);
             EditorGUILayout.PropertyField(m_UseGeometry);
+
+            if ((CollectObjects2d)m_CollectObjects.enumValueIndex == CollectObjects2d.Grid)
+            {
+                EditorGUILayout.PropertyField(m_UseMeshPrefab);
+            }
 
             EditorGUILayout.Space();
 

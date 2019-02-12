@@ -47,6 +47,10 @@ namespace UnityEngine.AI
         public NavMeshCollectGeometry useGeometry { get { return m_UseGeometry; } set { m_UseGeometry = value; } }
 
         [SerializeField]
+        GameObject m_UseMeshPrefab;
+        public GameObject useMeshpPrefab { get { return m_UseMeshPrefab; } set { m_UseMeshPrefab = value; } }
+
+        [SerializeField]
         int m_DefaultArea;
         public int defaultArea { get { return m_DefaultArea; } set { m_DefaultArea = value; } }
 
@@ -405,14 +409,35 @@ namespace UnityEngine.AI
             var bound = tilemap.cellBounds;
             var vec3int = new Vector3Int(0, 0, 0);
             var size = new Vector3(tilemap.layoutGrid.cellSize.x, tilemap.layoutGrid.cellSize.y, tilemap.layoutGrid.cellSize.y);
+            Mesh mesh = null;
+            Quaternion rot = default;
+            if (m_UseMeshPrefab != null)
+            {
+                mesh = m_UseMeshPrefab.GetComponent<MeshFilter>().sharedMesh;
+                size = m_UseMeshPrefab.transform.localScale;
+                rot = m_UseMeshPrefab.transform.rotation;
+            }
             for (int i = bound.xMin; i < bound.xMax; i++)
             {
                 for (int j = bound.yMin; j < bound.yMax; j++)
                 {
                     vec3int.x = i;
                     vec3int.y = j;
-                    if (tilemap.HasTile(vec3int))
+                    if (!tilemap.HasTile(vec3int))
                     {
+                        continue;
+                    }
+                    if (mesh != null)
+                    {
+                        var src = new NavMeshBuildSource();
+                        src.transform = Matrix4x4.TRS(tilemap.GetCellCenterWorld(vec3int), rot, size);
+                        src.shape = NavMeshBuildSourceShape.Mesh;
+                        src.sourceObject = m_UseMeshPrefab.GetComponent<MeshFilter>().sharedMesh;
+                        src.area = area;
+                        sources.Add(src);
+                    }
+                    else
+                    { 
                         var src = new NavMeshBuildSource();
                         src.transform = Matrix4x4.Translate(tilemap.GetCellCenterWorld(vec3int));
                         src.shape = NavMeshBuildSourceShape.Box;
