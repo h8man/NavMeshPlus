@@ -374,6 +374,10 @@ namespace UnityEngine.AI
             bool flag = true;
             foreach (var tilemap in grid.GetComponentsInChildren<Tilemap>())
             {
+                if ( ((0x1 << tilemap.gameObject.layer) & m_LayerMask) == 0)
+                {
+                    continue;
+                }
                 if (flag)
                 {
                     Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
