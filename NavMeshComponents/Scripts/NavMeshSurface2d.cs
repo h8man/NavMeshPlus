@@ -331,7 +331,7 @@ namespace UnityEngine.AI
                 {
                     UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
                         transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
-                    CollectGridSources(sources);
+                    NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_UseMeshPrefab);
                 }
             }
             else
@@ -354,7 +354,7 @@ namespace UnityEngine.AI
                 if (m_CollectObjects == CollectObjects2d.Grid)
                 {
                     NavMeshBuilder.CollectSources(transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
-                    CollectGridSources(sources);
+                    NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_UseMeshPrefab);
                 }
             }
             if (m_IgnoreNavMeshAgent)
@@ -366,91 +366,6 @@ namespace UnityEngine.AI
             AppendModifierVolumes(ref sources);
 
             return sources;
-        }
-
-        private void CollectGridSources(List<NavMeshBuildSource> sources)
-        {
-            var grid = FindObjectOfType<Grid>();
-            bool flag = true;
-            foreach (var tilemap in grid.GetComponentsInChildren<Tilemap>())
-            {
-                if ( ((0x1 << tilemap.gameObject.layer) & m_LayerMask) == 0)
-                {
-                    continue;
-                }
-                if (flag)
-                {
-                    Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
-                    sources.Add(BoxBoundSource(tilemap.localBounds));
-                    flag = false;
-                }
-                int area = m_DefaultArea;
-                var modifier = tilemap.GetComponent<NavMeshModifier>();
-                if (modifier != null && modifier.overrideArea)
-                {
-                    area = modifier.area;
-                }
-                if (modifier != null && !modifier.ignoreFromBuild)
-                {
-                    CollectTileSources(sources, tilemap, area);
-                }
-                else
-                {
-                    var collider = tilemap.GetComponent<TilemapCollider2D>();
-                    if (collider != null &&
-                        (modifier == null || (modifier != null && !modifier.ignoreFromBuild)))
-                    {
-                        CollectTileSources(sources, tilemap, area);
-                    }
-                }
-            }
-
-            Debug.Log("Sources " + sources.Count);
-        }
-
-        private void CollectTileSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area)
-        {
-            var bound = tilemap.cellBounds;
-            var vec3int = new Vector3Int(0, 0, 0);
-            var size = new Vector3(tilemap.layoutGrid.cellSize.x, tilemap.layoutGrid.cellSize.y, tilemap.layoutGrid.cellSize.y);
-            Mesh mesh = null;
-            Quaternion rot = default;
-            if (m_UseMeshPrefab != null)
-            {
-                mesh = m_UseMeshPrefab.GetComponent<MeshFilter>().sharedMesh;
-                size = m_UseMeshPrefab.transform.localScale;
-                rot = m_UseMeshPrefab.transform.rotation;
-            }
-            for (int i = bound.xMin; i < bound.xMax; i++)
-            {
-                for (int j = bound.yMin; j < bound.yMax; j++)
-                {
-                    vec3int.x = i;
-                    vec3int.y = j;
-                    if (!tilemap.HasTile(vec3int))
-                    {
-                        continue;
-                    }
-                    if (mesh != null)
-                    {
-                        var src = new NavMeshBuildSource();
-                        src.transform = Matrix4x4.TRS(tilemap.GetCellCenterWorld(vec3int), rot, size);
-                        src.shape = NavMeshBuildSourceShape.Mesh;
-                        src.sourceObject = m_UseMeshPrefab.GetComponent<MeshFilter>().sharedMesh;
-                        src.area = area;
-                        sources.Add(src);
-                    }
-                    else
-                    { 
-                        var src = new NavMeshBuildSource();
-                        src.transform = Matrix4x4.Translate(tilemap.GetCellCenterWorld(vec3int));
-                        src.shape = NavMeshBuildSourceShape.Box;
-                        src.size = size;
-                        src.area = area;
-                        sources.Add(src);
-                    }
-                }
-            }
         }
 
         static Vector3 Abs(Vector3 v)
@@ -534,16 +449,6 @@ namespace UnityEngine.AI
                 RemoveData();
                 AddData();
             }
-        }
-
-        private NavMeshBuildSource BoxBoundSource(Bounds localBounds)
-        {
-            var src = new NavMeshBuildSource();
-            src.transform = Matrix4x4.Translate(localBounds.center);
-            src.shape = NavMeshBuildSourceShape.Box;
-            src.size = localBounds.size;
-            src.area = 0;
-            return src;
         }
 
 #if UNITY_EDITOR
