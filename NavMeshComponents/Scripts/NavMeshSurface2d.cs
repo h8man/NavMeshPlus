@@ -47,6 +47,10 @@ namespace UnityEngine.AI
         public NavMeshCollectGeometry useGeometry { get { return m_UseGeometry; } set { m_UseGeometry = value; } }
 
         [SerializeField]
+        bool m_OverrideByGrid;
+        public bool overrideByGrid { get { return m_OverrideByGrid; } set { m_OverrideByGrid = value; } }
+
+        [SerializeField]
         GameObject m_UseMeshPrefab;
         public GameObject useMeshpPrefab { get { return m_UseMeshPrefab; } set { m_UseMeshPrefab = value; } }
 
@@ -331,7 +335,7 @@ namespace UnityEngine.AI
                 {
                     UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
                         transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
-                    NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_UseMeshPrefab);
+                    NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid ,m_UseMeshPrefab);
                 }
             }
             else
@@ -354,7 +358,7 @@ namespace UnityEngine.AI
                 if (m_CollectObjects == CollectObjects2d.Grid)
                 {
                     NavMeshBuilder.CollectSources(transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
-                    NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_UseMeshPrefab);
+                    NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid, m_UseMeshPrefab);
                 }
             }
             if (m_IgnoreNavMeshAgent)

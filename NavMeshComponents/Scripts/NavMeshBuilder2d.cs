@@ -8,6 +8,7 @@ namespace UnityEngine.AI
         public Dictionary<Sprite, Mesh> map;
         public int defaultArea;
         public int layerMask;
+        public bool overrideByGrid;
         public GameObject useMeshPrefab;
 
         public NavMeshBuilder2dWrapper()
@@ -33,12 +34,13 @@ namespace UnityEngine.AI
     }
     class NavMeshBuilder2d
     {
-        internal static void CollectGridSources(List<NavMeshBuildSource> sources, int defaultArea, int layerMask, GameObject useMeshPrefab)
+        internal static void CollectGridSources(List<NavMeshBuildSource> sources, int defaultArea, int layerMask, bool overrideByGrid, GameObject useMeshPrefab)
         {
             var builder = new NavMeshBuilder2dWrapper();
             builder.defaultArea = defaultArea;
             builder.layerMask = layerMask;
             builder.useMeshPrefab = useMeshPrefab;
+            builder.overrideByGrid = overrideByGrid;
             var grid = GameObject.FindObjectOfType<Grid>();
             bool flag = true;
             foreach (var tilemap in grid.GetComponentsInChildren<Tilemap>())
@@ -100,14 +102,14 @@ namespace UnityEngine.AI
                         continue;
                     }
 
-                    if (tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite)
+                    if (tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite && !builder.overrideByGrid)
                     {
                         mesh = builder.GetMesh(tilemap.GetSprite(vec3int));
                         src.transform = tilemap.GetTransformMatrix(vec3int) * Matrix4x4.Translate(tilemap.GetCellCenterWorld(vec3int));
                         src.sourceObject = mesh;
                         sources.Add(src);
                     }
-                    else if (builder.useMeshPrefab != null)
+                    else if (builder.useMeshPrefab != null && builder.overrideByGrid)
                     {
                         src.transform = Matrix4x4.TRS(tilemap.GetCellCenterWorld(vec3int), rot, size);
                         src.sourceObject = sharedMesh;
@@ -120,7 +122,7 @@ namespace UnityEngine.AI
                         boxsrc.shape = NavMeshBuildSourceShape.Box;
                         boxsrc.size = size;
                         boxsrc.area = area;
-                        sources.Add(src);
+                        sources.Add(boxsrc);
                     }
                 }
             }
