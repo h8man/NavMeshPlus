@@ -377,7 +377,7 @@ namespace UnityEngine.AI
             return new Vector3(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
         }
 
-        static Bounds GetWorldBounds(Matrix4x4 mat, Bounds bounds)
+        public static Bounds GetWorldBounds(Matrix4x4 mat, Bounds bounds)
         {
             var absAxisX = Abs(mat.MultiplyVector(Vector3.right));
             var absAxisY = Abs(mat.MultiplyVector(Vector3.up));
@@ -396,15 +396,20 @@ namespace UnityEngine.AI
             if (m_CollectObjects == CollectObjects2d.Grid)
             {
                 var grid = FindObjectOfType<Grid>();
-                var tilemap = grid.GetComponentInChildren<Tilemap>();
-                if (tilemap == null)
+                var tilemaps = grid.GetComponentsInChildren<Tilemap>();
+                if (tilemaps == null || tilemaps.Length < 1)
                 {
                     throw new NullReferenceException("Add at least one tilemap");
                 }
-                //Debug.Log($"From Local Bounds [{tilemap.name}]: {tilemap.localBounds}");
-                var bounds = GetWorldBounds(worldToLocal , tilemap.localBounds);
+                var bounds = new Bounds();
+                foreach(var tilemap in tilemaps)
+                { 
+                    //Debug.Log($"From Local Bounds [{tilemap.name}]: {tilemap.localBounds}");
+                    var lbounds = GetWorldBounds(worldToLocal* tilemap.transform.localToWorldMatrix, tilemap.localBounds);
+                    bounds.Encapsulate(lbounds);
+                    //Debug.Log($"To World Bounds: {bounds}");
+                }
                 bounds.Expand(0.1f);
-                //Debug.Log($"To World Bounds: {bounds}");
                 return bounds;
             }
 

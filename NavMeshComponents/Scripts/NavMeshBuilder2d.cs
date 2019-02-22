@@ -42,19 +42,18 @@ namespace UnityEngine.AI
             builder.useMeshPrefab = useMeshPrefab;
             builder.overrideByGrid = overrideByGrid;
             var grid = GameObject.FindObjectOfType<Grid>();
-            bool flag = true;
             foreach (var tilemap in grid.GetComponentsInChildren<Tilemap>())
             {
                 if (((0x1 << tilemap.gameObject.layer) & layerMask) == 0)
                 {
                     continue;
                 }
-                if (flag)
-                {
-                    Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
-                    sources.Add(BoxBoundSource(tilemap.localBounds));
-                    flag = false;
-                }
+
+                Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
+                var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
+                box.area = defaultArea;
+                sources.Add(box);
+
                 int area = defaultArea;
                 var modifier = tilemap.GetComponent<NavMeshModifier>();
                 if (modifier != null && modifier.overrideArea)
@@ -102,14 +101,14 @@ namespace UnityEngine.AI
                         continue;
                     }
 
-                    if (tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite && !builder.overrideByGrid)
+                    if (!builder.overrideByGrid && tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite)
                     {
                         mesh = builder.GetMesh(tilemap.GetSprite(vec3int));
                         src.transform = tilemap.GetTransformMatrix(vec3int) * Matrix4x4.Translate(tilemap.GetCellCenterWorld(vec3int));
                         src.sourceObject = mesh;
                         sources.Add(src);
                     }
-                    else if (builder.useMeshPrefab != null && builder.overrideByGrid)
+                    else if (builder.useMeshPrefab != null || (builder.overrideByGrid && builder.useMeshPrefab != null))
                     {
                         src.transform = Matrix4x4.TRS(tilemap.GetCellCenterWorld(vec3int), rot, size);
                         src.sourceObject = sharedMesh;
