@@ -16,14 +16,14 @@ To use it in your project:
 1. Copy repo into your Asset folder 
 2. Create Empty Object in scene root and rotated respectively to Tilemap (x-90;y0;z0)
 3. Add NavMeshSurface2d component to Empty Object
-4. Tilemap with TilemapCollider2d will be carved out as Unwalkable, unless overriden by NavMeshModifier 
-5. In NavMeshSurface2d select Collection Object to Grid, Default Area to Unwalkable.
+4. Add Tilemap with NavMeshModifier component, override the area.
+5. In NavMeshSurface2d select Collection Object to Grid.
+6. Bake.
 
 How does it works:
 
-1. It uses https://docs.unity3d.com/Manual/class-NavMeshSurface.html as base implementation
-2. Implements world bound calculation from Tilemap bounds (seems to be the same within Grid)
+1. It uses https://docs.unity3d.com/Manual/class-NavMeshSurface.html as base implementation.
+2. Implements world bound calculation from Tilemap bounds.
 3. Implements source collector of tiles, because NavMeshBuilder.CollectSources will not work
 4. Creates walkable mesh box from world bounds.
-5. It uses tiles from Tilemap with TilemapCollider2d component as a unwalkable source.
-6. Use X and Z axis for NavMeshBuildSource(), becase of how NavMeshBuilder works
+5. Convert tiles to sources as NavMeshBuilder would do.
