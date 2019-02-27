@@ -48,12 +48,13 @@ namespace UnityEngine.AI
                 {
                     continue;
                 }
-
-                Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
-                var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
-                box.area = defaultArea;
-                sources.Add(box);
-
+                if(defaultArea != 1) //if it is walkable
+                {
+                    Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
+                    var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
+                    box.area = defaultArea;
+                    sources.Add(box);
+                }
                 int area = defaultArea;
                 var modifier = tilemap.GetComponent<NavMeshModifier>();
                 if (modifier != null && modifier.overrideArea)
