@@ -5,7 +5,12 @@ geometry, which allows characters to move intelligently around the game world.
 
 # Unity NavMesh 2D Pathfinding 
 
-This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D. It is explores NavMeshComponents abilities for Unity 2D. (https://docs.unity3d.com/Manual/class-NavMeshSurface.html)
+This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D. It is explores NavMeshComponents capabilities. (https://docs.unity3d.com/Manual/class-NavMeshSurface.html)
+# Info
+
+HOW TO: https://github.com/h8man/NavMeshPlus/blob/master/navmeshplus.pdf
+Demo: https://github.com/h8man/RedHotSweetPepper
+Discuss: https://forum.unity.com/threads/2d-navmesh-pathfinding.503596/
 
 # 2D NavMesh
 
@@ -17,8 +22,7 @@ To use it in your project:
 2. Create Empty Object in scene root and rotated respectively to Tilemap (x-90;y0;z0)
 3. Add NavMeshSurface2d component to Empty Object
 4. Add Tilemap with NavMeshModifier component, override the area.
-5. In NavMeshSurface2d select Collection Object to Grid.
-6. Bake.
+5. In NavMeshSurface2d hit Bake.
 
 How does it works:
 

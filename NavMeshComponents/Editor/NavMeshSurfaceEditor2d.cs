@@ -141,12 +141,9 @@ namespace UnityEditor.AI
             EditorGUILayout.PropertyField(m_LayerMask, s_Styles.m_LayerMask);
             EditorGUILayout.PropertyField(m_UseGeometry);
 
-            if ((CollectObjects2d)m_CollectObjects.enumValueIndex == CollectObjects2d.Grid)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(m_OverrideByGrid);
-                EditorGUILayout.PropertyField(m_UseMeshPrefab);
-            }
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(m_OverrideByGrid);
+            EditorGUILayout.PropertyField(m_UseMeshPrefab);
 
             EditorGUILayout.Space();
 

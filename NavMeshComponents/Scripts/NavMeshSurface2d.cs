@@ -13,7 +13,6 @@ namespace UnityEngine.AI
         All = 0,
         Volume = 1,
         Children = 2,
-        Grid = 3,
     }
 
     [ExecuteAlways]
@@ -331,12 +330,9 @@ namespace UnityEngine.AI
                     UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
                         worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
-                if (m_CollectObjects == CollectObjects2d.Grid)
-                {
-                    UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
-                        transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
-                    NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid ,m_UseMeshPrefab);
-                }
+
+                NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid ,m_UseMeshPrefab);
+
             }
             else
 #endif
@@ -355,11 +351,8 @@ namespace UnityEngine.AI
                     var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
                     NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
                 }
-                if (m_CollectObjects == CollectObjects2d.Grid)
-                {
-                    NavMeshBuilder.CollectSources(transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
-                    NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid, m_UseMeshPrefab);
-                }
+
+                NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid, m_UseMeshPrefab);
             }
             if (m_IgnoreNavMeshAgent)
                 sources.RemoveAll((x) => (x.component != null && x.component.gameObject.GetComponent<NavMeshAgent>() != null));
@@ -393,44 +386,25 @@ namespace UnityEngine.AI
             Matrix4x4 worldToLocal = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
             worldToLocal = worldToLocal.inverse;
 
-            if (m_CollectObjects == CollectObjects2d.Grid)
-            {
-                var grid = FindObjectOfType<Grid>();
-                var tilemaps = grid.GetComponentsInChildren<Tilemap>();
-                if (tilemaps == null || tilemaps.Length < 1)
-                {
-                    throw new NullReferenceException("Add at least one tilemap");
-                }
-                var bounds = new Bounds();
-                foreach(var tilemap in tilemaps)
-                { 
-                    //Debug.Log($"From Local Bounds [{tilemap.name}]: {tilemap.localBounds}");
-                    var lbounds = GetWorldBounds(worldToLocal* tilemap.transform.localToWorldMatrix, tilemap.localBounds);
-                    bounds.Encapsulate(lbounds);
-                    //Debug.Log($"To World Bounds: {bounds}");
-                }
-                bounds.Expand(0.1f);
-                return bounds;
-            }
+            var result = CalculateGridWorldBounds(worldToLocal);
 
-            var result = new Bounds();
             foreach (var src in sources)
             {
                 switch (src.shape)
                 {
                     case NavMeshBuildSourceShape.Mesh:
-                    {
-                        var m = src.sourceObject as Mesh;
-                        result.Encapsulate(GetWorldBounds(worldToLocal * src.transform, m.bounds));
-                        break;
-                    }
+                        {
+                            var m = src.sourceObject as Mesh;
+                            result.Encapsulate(GetWorldBounds(worldToLocal * src.transform, m.bounds));
+                            break;
+                        }
                     case NavMeshBuildSourceShape.Terrain:
-                    {
-                        // Terrain pivot is lower/left corner - shift bounds accordingly
-                        var t = src.sourceObject as TerrainData;
-                        result.Encapsulate(GetWorldBounds(worldToLocal * src.transform, new Bounds(0.5f * t.size, t.size)));
-                        break;
-                    }
+                        {
+                            // Terrain pivot is lower/left corner - shift bounds accordingly
+                            var t = src.sourceObject as TerrainData;
+                            result.Encapsulate(GetWorldBounds(worldToLocal * src.transform, new Bounds(0.5f * t.size, t.size)));
+                            break;
+                        }
                     case NavMeshBuildSourceShape.Box:
                     case NavMeshBuildSourceShape.Sphere:
                     case NavMeshBuildSourceShape.Capsule:
@@ -442,6 +416,26 @@ namespace UnityEngine.AI
             // Inflate the bounds a bit to avoid clipping co-planar sources
             result.Expand(0.1f);
             return result;
+        }
+
+        private static Bounds CalculateGridWorldBounds(Matrix4x4 worldToLocal)
+        {
+            var grid = FindObjectOfType<Grid>();
+            var tilemaps = grid.GetComponentsInChildren<Tilemap>();
+            if (tilemaps == null || tilemaps.Length < 1)
+            {
+                throw new NullReferenceException("Add at least one tilemap");
+            }
+            var bounds = new Bounds();
+            foreach (var tilemap in tilemaps)
+            {
+                //Debug.Log($"From Local Bounds [{tilemap.name}]: {tilemap.localBounds}");
+                var lbounds = GetWorldBounds(worldToLocal * tilemap.transform.localToWorldMatrix, tilemap.localBounds);
+                bounds.Encapsulate(lbounds);
+                //Debug.Log($"To World Bounds: {bounds}");
+            }
+            bounds.Expand(0.1f);
+            return bounds;
         }
 
         bool HasTransformChanged()
