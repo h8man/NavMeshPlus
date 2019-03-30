@@ -10,6 +10,7 @@ namespace UnityEngine.AI
         public int layerMask;
         public bool overrideByGrid;
         public GameObject useMeshPrefab;
+        public bool compressBounds;
 
         public NavMeshBuilder2dWrapper()
         {
@@ -34,29 +35,37 @@ namespace UnityEngine.AI
     }
     class NavMeshBuilder2d
     {
-        internal static void CollectGridSources(List<NavMeshBuildSource> sources, int defaultArea, int layerMask, bool overrideByGrid, GameObject useMeshPrefab)
+        internal static void CollectGridSources(List<NavMeshBuildSource> sources, int defaultArea, int layerMask, bool overrideByGrid, GameObject useMeshPrefab, bool compressBounds)
         {
             var builder = new NavMeshBuilder2dWrapper();
             builder.defaultArea = defaultArea;
             builder.layerMask = layerMask;
             builder.useMeshPrefab = useMeshPrefab;
             builder.overrideByGrid = overrideByGrid;
-            var grid = GameObject.FindObjectOfType<Grid>();
+            builder.compressBounds = compressBounds;
+           var grid = GameObject.FindObjectOfType<Grid>();
             foreach (var tilemap in grid.GetComponentsInChildren<Tilemap>())
             {
                 if (((0x1 << tilemap.gameObject.layer) & layerMask) == 0)
                 {
                     continue;
                 }
-                if(defaultArea != 1) //if it is walkable
+                int area = defaultArea;
+                var modifier = tilemap.GetComponent<NavMeshModifier>();
+                //if it is walkable
+                if (defaultArea != 1 && (modifier == null || (modifier != null && !modifier.ignoreFromBuild)))
                 {
+                    if (compressBounds)
+                    {
+                        tilemap.CompressBounds();
+                    }
+
                     Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
                     var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
                     box.area = defaultArea;
                     sources.Add(box);
                 }
-                int area = defaultArea;
-                var modifier = tilemap.GetComponent<NavMeshModifier>();
+
                 if (modifier != null && modifier.overrideArea)
                 {
                     area = modifier.area;

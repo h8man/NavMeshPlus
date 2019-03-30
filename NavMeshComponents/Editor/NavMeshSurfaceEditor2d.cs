@@ -1,11 +1,7 @@
 #define NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
 
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using UnityEditor.Experimental.SceneManagement;
 using UnityEditor.IMGUI.Controls;
-using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine.AI;
 using UnityEngine;
@@ -25,6 +21,7 @@ namespace UnityEditor.AI
 
         SerializedProperty m_OverrideByGrid;
         SerializedProperty m_UseMeshPrefab;
+        SerializedProperty m_CompressBounds;
 
         SerializedProperty m_OverrideTileSize;
         SerializedProperty m_OverrideVoxelSize;
@@ -75,6 +72,7 @@ namespace UnityEditor.AI
 
             m_OverrideByGrid = serializedObject.FindProperty("m_OverrideByGrid");
             m_UseMeshPrefab = serializedObject.FindProperty("m_UseMeshPrefab");
+            m_CompressBounds = serializedObject.FindProperty("m_CompressBounds");
 
             m_OverrideTileSize = serializedObject.FindProperty("m_OverrideTileSize");
             m_OverrideVoxelSize = serializedObject.FindProperty("m_OverrideVoxelSize");
@@ -144,6 +142,7 @@ namespace UnityEditor.AI
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(m_OverrideByGrid);
             EditorGUILayout.PropertyField(m_UseMeshPrefab);
+            EditorGUILayout.PropertyField(m_CompressBounds);
 
             EditorGUILayout.Space();
 
