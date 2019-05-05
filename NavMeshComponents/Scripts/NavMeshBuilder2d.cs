@@ -11,6 +11,7 @@ namespace UnityEngine.AI
         public bool overrideByGrid;
         public GameObject useMeshPrefab;
         public bool compressBounds;
+        public Vector3 overrideVector;
 
         public NavMeshBuilder2dWrapper()
         {
@@ -35,7 +36,7 @@ namespace UnityEngine.AI
     }
     class NavMeshBuilder2d
     {
-        internal static void CollectGridSources(List<NavMeshBuildSource> sources, int defaultArea, int layerMask, bool overrideByGrid, GameObject useMeshPrefab, bool compressBounds)
+        internal static void CollectGridSources(List<NavMeshBuildSource> sources, int defaultArea, int layerMask, bool overrideByGrid, GameObject useMeshPrefab, bool compressBounds, Vector3 overrideVector)
         {
             var builder = new NavMeshBuilder2dWrapper();
             builder.defaultArea = defaultArea;
@@ -43,6 +44,7 @@ namespace UnityEngine.AI
             builder.useMeshPrefab = useMeshPrefab;
             builder.overrideByGrid = overrideByGrid;
             builder.compressBounds = compressBounds;
+            builder.overrideVector = overrideVector;
            var grid = GameObject.FindObjectOfType<Grid>();
             foreach (var tilemap in grid.GetComponentsInChildren<Tilemap>())
             {
@@ -114,20 +116,20 @@ namespace UnityEngine.AI
                     if (!builder.overrideByGrid && tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite)
                     {
                         mesh = builder.GetMesh(tilemap.GetSprite(vec3int));
-                        src.transform = Matrix4x4.Translate(tilemap.GetCellCenterWorld(vec3int)) * tilemap.GetTransformMatrix(vec3int);
+                        src.transform = Matrix4x4.Translate(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int),builder.overrideVector)) * tilemap.GetTransformMatrix(vec3int);
                         src.sourceObject = mesh;
                         sources.Add(src);
                     }
                     else if (builder.useMeshPrefab != null || (builder.overrideByGrid && builder.useMeshPrefab != null))
                     {
-                        src.transform = Matrix4x4.TRS(tilemap.GetCellCenterWorld(vec3int), rot, size);
+                        src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector), rot, size);
                         src.sourceObject = sharedMesh;
                         sources.Add(src);
                     }
                     else //default to box
                     {
                         var boxsrc = new NavMeshBuildSource();
-                        boxsrc.transform = Matrix4x4.Translate(tilemap.GetCellCenterWorld(vec3int));
+                        boxsrc.transform = Matrix4x4.Translate(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector));
                         boxsrc.shape = NavMeshBuildSourceShape.Box;
                         boxsrc.size = size;
                         boxsrc.area = area;

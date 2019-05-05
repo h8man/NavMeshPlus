@@ -58,6 +58,10 @@ namespace UnityEngine.AI
         public bool compressBounds { get { return m_CompressBounds; } set { m_CompressBounds = value; } }
 
         [SerializeField]
+        Vector3 m_OverrideVector = Vector3.one;
+        public Vector3 overrideVector { get { return m_OverrideVector; } set { m_OverrideVector = value; } }
+
+        [SerializeField]
         int m_DefaultArea;
         public int defaultArea { get { return m_DefaultArea; } set { m_DefaultArea = value; } }
 
@@ -335,7 +339,7 @@ namespace UnityEngine.AI
                         worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
 
-                NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid ,m_UseMeshPrefab,m_CompressBounds);
+                NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid ,m_UseMeshPrefab,m_CompressBounds, m_OverrideVector);
 
             }
             else
@@ -356,7 +360,7 @@ namespace UnityEngine.AI
                     NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
                 }
 
-                NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid, m_UseMeshPrefab,m_CompressBounds);
+                NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid, m_UseMeshPrefab, m_CompressBounds, m_OverrideVector);
             }
             if (m_IgnoreNavMeshAgent)
                 sources.RemoveAll((x) => (x.component != null && x.component.gameObject.GetComponent<NavMeshAgent>() != null));

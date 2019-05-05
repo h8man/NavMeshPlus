@@ -22,6 +22,7 @@ namespace UnityEditor.AI
         SerializedProperty m_OverrideByGrid;
         SerializedProperty m_UseMeshPrefab;
         SerializedProperty m_CompressBounds;
+        SerializedProperty m_OverrideVector;
 
         SerializedProperty m_OverrideTileSize;
         SerializedProperty m_OverrideVoxelSize;
@@ -73,6 +74,7 @@ namespace UnityEditor.AI
             m_OverrideByGrid = serializedObject.FindProperty("m_OverrideByGrid");
             m_UseMeshPrefab = serializedObject.FindProperty("m_UseMeshPrefab");
             m_CompressBounds = serializedObject.FindProperty("m_CompressBounds");
+            m_OverrideVector = serializedObject.FindProperty("m_OverrideVector");
 
             m_OverrideTileSize = serializedObject.FindProperty("m_OverrideTileSize");
             m_OverrideVoxelSize = serializedObject.FindProperty("m_OverrideVoxelSize");
@@ -143,6 +145,7 @@ namespace UnityEditor.AI
             EditorGUILayout.PropertyField(m_OverrideByGrid);
             EditorGUILayout.PropertyField(m_UseMeshPrefab);
             EditorGUILayout.PropertyField(m_CompressBounds);
+            EditorGUILayout.PropertyField(m_OverrideVector);
 
             EditorGUILayout.Space();
 
