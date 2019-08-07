@@ -6,11 +6,30 @@ geometry, which allows characters to move intelligently around the game world.
 # Unity NavMesh 2D Pathfinding 
 
 This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D. It is explores NavMeshComponents capabilities. (https://docs.unity3d.com/Manual/class-NavMeshSurface.html)
+
 # Info
 
-HOW TO: https://github.com/h8man/NavMeshPlus/blob/master/navmeshplus.pdf
-Demo: https://github.com/h8man/RedHotSweetPepper
-Discuss: https://forum.unity.com/threads/2d-navmesh-pathfinding.503596/
+## Setup
+
+You can use this in two different ways: downloading this repository or adding it to your project's Package Manager manifest.
+Alternatively, you can pick scripts and place in your project's `Assets` folder.
+
+### Variant 1. Download
+Download or clone this repository into your project in the folder `Packages/com.h8man.2d.navmeshplus`.
+
+### Variant 2. Package Manager Manifest
+[Git](https://git-scm.com/) must be installed and added to your path.
+
+The following line needs to be added to your `Packages/manifest.json` file in your Unity Project under the `dependencies` section:
+
+"com.h8man.2d.navmeshplus": "https://github.com/h8man/NavMeshPlus.git#master".
+
+### Msic
+HOW TO:(https://github.com/h8man/NavMeshPlus/blob/master/navmeshplus.pdf ).
+
+Demo:(https://github.com/h8man/RedHotSweetPepper ).
+
+Discuss:(https://forum.unity.com/threads/2d-navmesh-pathfinding.503596/ ).
 
 # 2D NavMesh
 
