@@ -1,0 +1,13 @@
+{
+
+    "name": "com.h8man.2d.navmeshplus",
+    "displayName": "NavMeshPlus",
+    "version": "0.1.0",
+    "unity": "2019.2",
+    "description": "NavMesh building components provide you with ability to create navigation meshes that are generated automatically from your Scene geometry, which allows characters to move intelligently around the game world.",
+    "keywords": ["2d"],
+    "category": "2D",
+    "dependencies": {
+    }
+
+}
