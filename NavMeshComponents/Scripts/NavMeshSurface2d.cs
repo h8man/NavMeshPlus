@@ -51,7 +51,7 @@ namespace UnityEngine.AI
 
         [SerializeField]
         GameObject m_UseMeshPrefab;
-        public GameObject useMeshpPrefab { get { return m_UseMeshPrefab; } set { m_UseMeshPrefab = value; } }
+        public GameObject useMeshPrefab { get { return m_UseMeshPrefab; } set { m_UseMeshPrefab = value; } }
 
         [SerializeField]
         bool m_CompressBounds;
@@ -338,8 +338,15 @@ namespace UnityEngine.AI
                     UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
                         worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
-
-                NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid ,m_UseMeshPrefab,m_CompressBounds, m_OverrideVector);
+                var builder = new NavMeshBuilder2dWrapper();
+                builder.defaultArea = defaultArea;
+                builder.layerMask = layerMask;
+                builder.useMeshPrefab = useMeshPrefab;
+                builder.overrideByGrid = overrideByGrid;
+                builder.compressBounds = compressBounds;
+                builder.overrideVector = overrideVector;
+                builder.CollectGeometry = useGeometry;
+                NavMeshBuilder2d.CollectGridSources(sources, builder);
 
             }
             else
@@ -359,8 +366,15 @@ namespace UnityEngine.AI
                     var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
                     NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
                 }
-
-                NavMeshBuilder2d.CollectGridSources(sources, m_DefaultArea, m_LayerMask, m_OverrideByGrid, m_UseMeshPrefab, m_CompressBounds, m_OverrideVector);
+                var builder = new NavMeshBuilder2dWrapper();
+                builder.defaultArea = defaultArea;
+                builder.layerMask = layerMask;
+                builder.useMeshPrefab = useMeshPrefab;
+                builder.overrideByGrid = overrideByGrid;
+                builder.compressBounds = compressBounds;
+                builder.overrideVector = overrideVector;
+                builder.CollectGeometry = useGeometry;
+                NavMeshBuilder2d.CollectGridSources(sources,builder);
             }
             if (m_IgnoreNavMeshAgent)
                 sources.RemoveAll((x) => (x.component != null && x.component.gameObject.GetComponent<NavMeshAgent>() != null));

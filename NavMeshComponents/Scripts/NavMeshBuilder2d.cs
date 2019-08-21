@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine.Tilemaps;
 
 namespace UnityEngine.AI
@@ -12,6 +13,7 @@ namespace UnityEngine.AI
         public GameObject useMeshPrefab;
         public bool compressBounds;
         public Vector3 overrideVector;
+        public NavMeshCollectGeometry CollectGeometry;
 
         public NavMeshBuilder2dWrapper()
         {
@@ -36,48 +38,75 @@ namespace UnityEngine.AI
     }
     class NavMeshBuilder2d
     {
-        internal static void CollectGridSources(List<NavMeshBuildSource> sources, int defaultArea, int layerMask, bool overrideByGrid, GameObject useMeshPrefab, bool compressBounds, Vector3 overrideVector)
+        internal static void CollectGridSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dWrapper builder)
         {
-            var builder = new NavMeshBuilder2dWrapper();
-            builder.defaultArea = defaultArea;
-            builder.layerMask = layerMask;
-            builder.useMeshPrefab = useMeshPrefab;
-            builder.overrideByGrid = overrideByGrid;
-            builder.compressBounds = compressBounds;
-            builder.overrideVector = overrideVector;
-           var grid = GameObject.FindObjectOfType<Grid>();
-            foreach (var tilemap in grid.GetComponentsInChildren<Tilemap>())
+            var grid = GameObject.FindObjectOfType<Grid>();
+            foreach (var modifier in grid.GetComponentsInChildren<NavMeshModifier>())
             {
-                if (((0x1 << tilemap.gameObject.layer) & layerMask) == 0)
+                if (((0x1 << modifier.gameObject.layer) & builder.layerMask) == 0)
                 {
                     continue;
                 }
-                int area = defaultArea;
-                var modifier = tilemap.GetComponent<NavMeshModifier>();
+                int area = builder.defaultArea;
                 //if it is walkable
-                if (defaultArea != 1 && (modifier == null || (modifier != null && !modifier.ignoreFromBuild)))
+                if (builder.defaultArea != 1 && !modifier.ignoreFromBuild)
                 {
-                    if (compressBounds)
+                    var tilemap = modifier.GetComponent<Tilemap>();
+                    if (tilemap != null)
                     {
-                        tilemap.CompressBounds();
-                    }
+                        if (builder.compressBounds)
+                        {
+                            tilemap.CompressBounds();
+                        }
 
-                    Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
-                    var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
-                    box.area = defaultArea;
-                    sources.Add(box);
+                        Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
+                        var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
+                        box.area = builder.defaultArea;
+                        sources.Add(box);
+                    }
                 }
 
-                if (modifier != null && modifier.overrideArea)
+                if (modifier.overrideArea)
                 {
                     area = modifier.area;
                 }
-                if (modifier != null && !modifier.ignoreFromBuild)
+                if (!modifier.ignoreFromBuild)
                 {
-                    CollectTileSources(sources, tilemap, area, builder);
+                    var tilemap = modifier.GetComponent<Tilemap>();
+                    if (tilemap != null)
+                    {
+                        CollectTileSources(sources, tilemap, area, builder);
+                    }
+                    var sprite = modifier.GetComponent<SpriteRenderer>();
+                    if (sprite != null)
+                    {
+                        CollectSources(sources, sprite, area, builder);
+                    }
                 }
             }
             Debug.Log("Sources " + sources.Count);
+        }
+
+        private static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer sprite, int area, NavMeshBuilder2dWrapper builder)
+        {
+            if (sprite == null)
+            {
+                return;
+            }
+            var src = new NavMeshBuildSource();
+            src.shape = NavMeshBuildSourceShape.Mesh;
+            src.area = area;
+
+            Mesh mesh;
+            mesh = builder.GetMesh(sprite.sprite);
+            if (mesh == null)
+            {
+                Debug.Log($"{sprite.name} mesh is null");
+                return;
+            }
+            src.transform = Matrix4x4.TRS(Vector3.Scale(sprite.transform.position, builder.overrideVector), sprite.transform.rotation, sprite.transform.lossyScale);
+            src.sourceObject = mesh;
+            sources.Add(src);
         }
 
         static private void CollectTileSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area, NavMeshBuilder2dWrapper builder)
