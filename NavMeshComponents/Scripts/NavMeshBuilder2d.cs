@@ -141,6 +141,12 @@ namespace UnityEngine.AI
             {
                 return;
             }
+
+            if (collider.usedByComposite)
+            {
+                collider = collider.GetComponent<CompositeCollider2D>();
+            }
+
             var src = new NavMeshBuildSource();
             src.shape = NavMeshBuildSourceShape.Mesh;
             src.area = area;
