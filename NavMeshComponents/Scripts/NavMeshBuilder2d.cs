@@ -40,6 +40,7 @@ namespace UnityEngine.AI
 
         internal Mesh GetMesh(Collider2D collider)
         {
+#if UNITY_2019_3_OR_NEWER
             Mesh mesh;
             uint hash = collider.GetShapeHash();
             if (coliderMap.ContainsKey(hash))
@@ -52,8 +53,12 @@ namespace UnityEngine.AI
                 coliderMap.Add(hash, mesh);
             }
             return mesh;
+#else
+            throw new InvalidOperationException("PhysicsColliders supported in Unity 2019.3 and higher.");
+#endif
         }
     }
+
     class NavMeshBuilder2d
     {
         internal static void CollectGridSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dWrapper builder)
