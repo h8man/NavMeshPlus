@@ -7,6 +7,7 @@ namespace UnityEngine.AI
     class NavMeshBuilder2dWrapper
     {
         public Dictionary<Sprite, Mesh> map;
+        public Dictionary<uint, Mesh> coliderMap;
         public int defaultArea;
         public int layerMask;
         public bool overrideByGrid;
@@ -18,6 +19,7 @@ namespace UnityEngine.AI
         public NavMeshBuilder2dWrapper()
         {
             map = new Dictionary<Sprite, Mesh>();
+            coliderMap = new Dictionary<uint, Mesh>();
         }
 
         public Mesh GetMesh(Sprite sprite)
@@ -32,6 +34,22 @@ namespace UnityEngine.AI
                 mesh = new Mesh();
                 NavMeshBuilder2d.sprite2mesh(sprite, mesh);
                 map.Add(sprite, mesh);
+            }
+            return mesh;
+        }
+
+        internal Mesh GetMesh(Collider2D collider)
+        {
+            Mesh mesh;
+            uint hash = collider.GetShapeHash();
+            if (coliderMap.ContainsKey(hash))
+            {
+                mesh = coliderMap[hash];
+            }
+            else
+            {
+                mesh = collider.CreateMesh(false, false);
+                coliderMap.Add(hash, mesh);
             }
             return mesh;
         }
@@ -72,15 +90,22 @@ namespace UnityEngine.AI
                 }
                 if (!modifier.ignoreFromBuild)
                 {
-                    var tilemap = modifier.GetComponent<Tilemap>();
-                    if (tilemap != null)
+                    if (builder.CollectGeometry == NavMeshCollectGeometry.PhysicsColliders)
                     {
-                        CollectTileSources(sources, tilemap, area, builder);
+                        CollectSources(sources, modifier, area, builder);
                     }
-                    var sprite = modifier.GetComponent<SpriteRenderer>();
-                    if (sprite != null)
+                    else
                     {
-                        CollectSources(sources, sprite, area, builder);
+                        var tilemap = modifier.GetComponent<Tilemap>();
+                        if (tilemap != null)
+                        {
+                            CollectTileSources(sources, tilemap, area, builder);
+                        }
+                        var sprite = modifier.GetComponent<SpriteRenderer>();
+                        if (sprite != null)
+                        {
+                            CollectSources(sources, sprite, area, builder);
+                        }
                     }
                 }
             }
@@ -105,6 +130,42 @@ namespace UnityEngine.AI
                 return;
             }
             src.transform = Matrix4x4.TRS(Vector3.Scale(sprite.transform.position, builder.overrideVector), sprite.transform.rotation, sprite.transform.lossyScale);
+            src.sourceObject = mesh;
+            sources.Add(src);
+        }
+
+        private static void CollectSources(List<NavMeshBuildSource> sources, NavMeshModifier modifier, int area, NavMeshBuilder2dWrapper builder)
+        {
+            var collider = modifier.GetComponent<Collider2D>();
+            if (collider == null)
+            {
+                return;
+            }
+
+            if (collider.usedByComposite)
+            {
+                collider = collider.GetComponent<CompositeCollider2D>();
+            }
+
+            var src = new NavMeshBuildSource();
+            src.shape = NavMeshBuildSourceShape.Mesh;
+            src.area = area;
+
+            Mesh mesh;
+            mesh = builder.GetMesh(collider);
+            if (mesh == null)
+            {
+                Debug.Log($"{collider.name} mesh is null");
+                return;
+            }
+            if (collider.attachedRigidbody)
+            {
+                src.transform = Matrix4x4.TRS(Vector3.Scale(collider.transform.position, builder.overrideVector), collider.transform.rotation, Vector3.one);
+            }
+            else
+            {
+                src.transform = Matrix4x4.identity;
+            }
             src.sourceObject = mesh;
             sources.Add(src);
         }
