@@ -341,6 +341,7 @@ namespace UnityEngine.AI
                 var builder = new NavMeshBuilder2dWrapper();
                 builder.defaultArea = defaultArea;
                 builder.layerMask = layerMask;
+                builder.agentID = agentTypeID;
                 builder.useMeshPrefab = useMeshPrefab;
                 builder.overrideByGrid = overrideByGrid;
                 builder.compressBounds = compressBounds;
@@ -369,6 +370,7 @@ namespace UnityEngine.AI
                 var builder = new NavMeshBuilder2dWrapper();
                 builder.defaultArea = defaultArea;
                 builder.layerMask = layerMask;
+                builder.agentID = agentTypeID;
                 builder.useMeshPrefab = useMeshPrefab;
                 builder.overrideByGrid = overrideByGrid;
                 builder.compressBounds = compressBounds;

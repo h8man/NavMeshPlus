@@ -10,6 +10,7 @@ namespace UnityEngine.AI
         public Dictionary<uint, Mesh> coliderMap;
         public int defaultArea;
         public int layerMask;
+        public int agentID;
         public bool overrideByGrid;
         public GameObject useMeshPrefab;
         public bool compressBounds;
@@ -67,6 +68,10 @@ namespace UnityEngine.AI
             foreach (var modifier in grid.GetComponentsInChildren<NavMeshModifier>())
             {
                 if (((0x1 << modifier.gameObject.layer) & builder.layerMask) == 0)
+                {
+                    continue;
+                }
+                if (!modifier.AffectsAgentType(builder.agentID))
                 {
                     continue;
                 }
