@@ -25,6 +25,8 @@ The following line needs to be added to your `Packages/manifest.json` file in yo
 "com.h8man.2d.navmeshplus": "https://github.com/h8man/NavMeshPlus.git#master".
 
 ### Misc
+Wiki: (https://github.com/h8man/NavMeshPlus/wiki/HOW-TO ).
+
 HOW TO:(https://github.com/h8man/NavMeshPlus/blob/master/navmeshplus.pdf ).
 
 Demo:(https://github.com/h8man/RedHotSweetPepper ).
