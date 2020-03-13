@@ -216,7 +216,7 @@ namespace UnityEngine.AI
                     if (!builder.overrideByGrid && tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite)
                     {
                         mesh = builder.GetMesh(tilemap.GetSprite(vec3int));
-                        src.transform = Matrix4x4.Translate(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int),builder.overrideVector)) * tilemap.GetTransformMatrix(vec3int);
+                        src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector), tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
                         src.sourceObject = mesh;
                         sources.Add(src);
                     }
@@ -229,7 +229,7 @@ namespace UnityEngine.AI
                     else //default to box
                     {
                         var boxsrc = new NavMeshBuildSource();
-                        boxsrc.transform = Matrix4x4.Translate(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector));
+                        boxsrc.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector), tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
                         boxsrc.shape = NavMeshBuildSourceShape.Box;
                         boxsrc.size = size;
                         boxsrc.area = area;
