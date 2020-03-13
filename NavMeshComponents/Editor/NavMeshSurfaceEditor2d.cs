@@ -280,6 +280,18 @@ namespace UnityEditor.AI
                 }
 
                 GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(EditorGUIUtility.labelWidth);
+                if (GUILayout.Button("Rotate Surface to XY"))
+                {
+                    foreach (var item in targets)
+                    {
+                        var o = item as NavMeshSurface2d;
+                        o.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
+                    }
+                }
+                GUILayout.EndHorizontal();
             }
 
             // Show progress for the selected targets
