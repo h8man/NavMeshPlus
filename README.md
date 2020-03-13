@@ -3,6 +3,8 @@
 NavMesh building components provide you with ability to create navigation meshes that are generated automatically from your Scene
 geometry, which allows characters to move intelligently around the game world.
 
+![NavMesh](https://github.com/h8man/NavMeshPlus/wiki/images/NavMesh-04.png)
+
 # Unity NavMesh 2D Pathfinding 
 
 This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D. It is explores NavMeshComponents capabilities. (https://docs.unity3d.com/Manual/class-NavMeshSurface.html)
@@ -49,6 +51,6 @@ How does it works:
 
 1. It uses https://docs.unity3d.com/Manual/class-NavMeshSurface.html as base implementation.
 2. Implements world bound calculation from Tilemap bounds.
-3. Implements source collector of tiles, because NavMeshBuilder.CollectSources will not work
+3. Implements source collector of tiles, sprites and 2d colliders, because NavMeshBuilder.CollectSources will not work
 4. Creates walkable mesh box from world bounds.
 5. Convert tiles to sources as NavMeshBuilder would do.
