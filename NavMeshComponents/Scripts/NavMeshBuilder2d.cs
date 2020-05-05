@@ -16,6 +16,8 @@ namespace UnityEngine.AI
         public bool compressBounds;
         public Vector3 overrideVector;
         public NavMeshCollectGeometry CollectGeometry;
+        public CollectObjects2d CollectObjects;
+        public GameObject parent;
 
         public NavMeshBuilder2dWrapper()
         {
@@ -58,14 +60,34 @@ namespace UnityEngine.AI
             throw new InvalidOperationException("PhysicsColliders supported in Unity 2019.3 and higher.");
 #endif
         }
+
+        internal IEnumerable<GameObject> GetRoot()
+        {
+            switch (CollectObjects)
+            {
+                case CollectObjects2d.Children: return new[] { parent };
+                case CollectObjects2d.Volume: 
+                case CollectObjects2d.All: 
+                default:
+                    return new[] { GameObject.FindObjectOfType<Grid>().gameObject };
+            }
+        }
     }
 
     class NavMeshBuilder2d
     {
-        internal static void CollectGridSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dWrapper builder)
+        internal static void CollectSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dWrapper builder)
         {
-            var grid = GameObject.FindObjectOfType<Grid>();
-            foreach (var modifier in grid.GetComponentsInChildren<NavMeshModifier>())
+            var root = builder.GetRoot();
+            foreach (var it in root)
+            {
+                CollectSources(it, sources, builder);
+            }
+        }
+
+        private static void CollectSources(GameObject root, List<NavMeshBuildSource> sources, NavMeshBuilder2dWrapper builder)
+        {
+            foreach (var modifier in root.GetComponentsInChildren<NavMeshModifier>())
             {
                 if (((0x1 << modifier.gameObject.layer) & builder.layerMask) == 0)
                 {
@@ -216,7 +238,7 @@ namespace UnityEngine.AI
                     if (!builder.overrideByGrid && tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite)
                     {
                         mesh = builder.GetMesh(tilemap.GetSprite(vec3int));
-                        src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector), tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
+                        src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector) - tilemap.layoutGrid.cellGap, tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
                         src.sourceObject = mesh;
                         sources.Add(src);
                     }
@@ -229,7 +251,7 @@ namespace UnityEngine.AI
                     else //default to box
                     {
                         var boxsrc = new NavMeshBuildSource();
-                        boxsrc.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector), tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
+                        boxsrc.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector) - tilemap.layoutGrid.cellGap, tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
                         boxsrc.shape = NavMeshBuildSourceShape.Box;
                         boxsrc.size = size;
                         boxsrc.area = area;

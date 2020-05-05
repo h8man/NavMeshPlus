@@ -347,7 +347,9 @@ namespace UnityEngine.AI
                 builder.compressBounds = compressBounds;
                 builder.overrideVector = overrideVector;
                 builder.CollectGeometry = useGeometry;
-                NavMeshBuilder2d.CollectGridSources(sources, builder);
+                builder.CollectObjects = collectObjects;
+                builder.parent = gameObject;
+                NavMeshBuilder2d.CollectSources(sources, builder);
 
             }
             else
@@ -376,7 +378,9 @@ namespace UnityEngine.AI
                 builder.compressBounds = compressBounds;
                 builder.overrideVector = overrideVector;
                 builder.CollectGeometry = useGeometry;
-                NavMeshBuilder2d.CollectGridSources(sources,builder);
+                builder.CollectObjects = collectObjects;
+                builder.parent = gameObject;
+                NavMeshBuilder2d.CollectSources(sources,builder);
             }
             if (m_IgnoreNavMeshAgent)
                 sources.RemoveAll((x) => (x.component != null && x.component.gameObject.GetComponent<NavMeshAgent>() != null));
@@ -409,8 +413,11 @@ namespace UnityEngine.AI
             // Use the unscaled matrix for the NavMeshSurface
             Matrix4x4 worldToLocal = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
             worldToLocal = worldToLocal.inverse;
-
-            var result = CalculateGridWorldBounds(worldToLocal);
+            var result = new Bounds();
+            if (collectObjects != CollectObjects2d.Children)
+            {
+                result.Encapsulate(CalculateGridWorldBounds(worldToLocal));
+            }
 
             foreach (var src in sources)
             {
@@ -444,13 +451,14 @@ namespace UnityEngine.AI
 
         private static Bounds CalculateGridWorldBounds(Matrix4x4 worldToLocal)
         {
+            var bounds = new Bounds();
             var grid = FindObjectOfType<Grid>();
             var tilemaps = grid.GetComponentsInChildren<Tilemap>();
             if (tilemaps == null || tilemaps.Length < 1)
             {
+
                 throw new NullReferenceException("Add at least one tilemap");
             }
-            var bounds = new Bounds();
             foreach (var tilemap in tilemaps)
             {
                 //Debug.Log($"From Local Bounds [{tilemap.name}]: {tilemap.localBounds}");
