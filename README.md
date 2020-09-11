@@ -24,7 +24,9 @@ Download or clone this repository into your project in the folder `Packages/com.
 
 The following line needs to be added to your `Packages/manifest.json` file in your Unity Project under the `dependencies` section:
 
-"com.h8man.2d.navmeshplus": "https://github.com/h8man/NavMeshPlus.git#master".
+```
+"com.h8man.2d.navmeshplus": "https://github.com/h8man/NavMeshPlus.git#master"
+```
 
 ### Misc
 Wiki: (https://github.com/h8man/NavMeshPlus/wiki/HOW-TO ).
