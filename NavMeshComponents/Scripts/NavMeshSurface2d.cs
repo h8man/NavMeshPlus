@@ -380,7 +380,7 @@ namespace UnityEngine.AI
                 builder.CollectGeometry = useGeometry;
                 builder.CollectObjects = collectObjects;
                 builder.parent = gameObject;
-                NavMeshBuilder2d.CollectSources(sources,builder);
+                NavMeshBuilder2d.CollectSources(sources, builder);
             }
             if (m_IgnoreNavMeshAgent)
                 sources.RemoveAll((x) => (x.component != null && x.component.gameObject.GetComponent<NavMeshAgent>() != null));
