@@ -17,15 +17,8 @@ namespace UnityEngine.AI {
         public override void OnInspectorGUI() {
             serializedObject.Update();
 
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(m_registerOnEnable.displayName, GUILayout.Width(140));
-            EditorGUILayout.PropertyField(m_registerOnEnable, new GUIContent(""));
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(m_unregisterOnDisable.displayName, GUILayout.Width(140));
-            EditorGUILayout.PropertyField(m_unregisterOnDisable, new GUIContent(""));
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.PropertyField(m_registerOnEnable, new GUIContent(m_registerOnEnable.displayName));
+            EditorGUILayout.PropertyField(m_unregisterOnDisable, new GUIContent(m_unregisterOnDisable.displayName));
 
             serializedObject.ApplyModifiedProperties();
         }
