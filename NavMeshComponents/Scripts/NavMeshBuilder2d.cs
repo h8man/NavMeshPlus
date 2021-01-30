@@ -93,7 +93,7 @@ namespace UnityEngine.AI
             m_registeredGrids.Remove(grid);
         }
 
-        public static void ClearAllGrids() {
+        public static void ClearAllRegisteredGrids() {
             m_registeredGrids.Clear();
         }
 
