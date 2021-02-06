@@ -91,6 +91,12 @@ namespace UnityEngine.AI
         bool m_BuildHeightMesh;
         public bool buildHeightMesh { get { return m_BuildHeightMesh; } set { m_BuildHeightMesh = value; } }
 
+#if UNITY_EDITOR
+        [SerializeField]
+        bool m_HideEditorLogs;
+        public bool hideEditorLogs { get { return m_HideEditorLogs; } set { m_HideEditorLogs = value; } }
+#endif
+
         // Reference to whole scene navmesh data asset.
         [UnityEngine.Serialization.FormerlySerializedAs("m_BakedNavMeshData")]
         [SerializeField]
@@ -157,7 +163,9 @@ namespace UnityEngine.AI
             var buildSettings = NavMesh.GetSettingsByID(m_AgentTypeID);
             if (buildSettings.agentTypeID == -1)
             {
-                Debug.LogWarning("No build settings for agent type ID " + agentTypeID, this);
+#if UNITY_EDITOR
+                if (!m_HideEditorLogs) Debug.LogWarning("No build settings for agent type ID " + agentTypeID, this);
+#endif
                 buildSettings.agentTypeID = m_AgentTypeID;
             }
 
@@ -349,6 +357,7 @@ namespace UnityEngine.AI
                 builder.CollectGeometry = useGeometry;
                 builder.CollectObjects = collectObjects;
                 builder.parent = gameObject;
+                builder.hideEditorLogs = hideEditorLogs;
                 NavMeshBuilder2d.CollectSources(sources, builder);
 
             }
@@ -380,6 +389,9 @@ namespace UnityEngine.AI
                 builder.CollectGeometry = useGeometry;
                 builder.CollectObjects = collectObjects;
                 builder.parent = gameObject;
+#if UNITY_EDITOR
+                builder.hideEditorLogs = hideEditorLogs;
+#endif
                 NavMeshBuilder2d.CollectSources(sources, builder);
             }
             if (m_IgnoreNavMeshAgent)
@@ -520,7 +532,9 @@ namespace UnityEngine.AI
         {
             if (UnshareNavMeshAsset())
             {
-                Debug.LogWarning("Duplicating NavMeshSurface does not duplicate the referenced navmesh data", this);
+#if UNITY_EDITOR
+                if (!m_HideEditorLogs) Debug.LogWarning("Duplicating NavMeshSurface does not duplicate the referenced navmesh data", this);
+#endif
                 m_NavMeshData = null;
             }
 

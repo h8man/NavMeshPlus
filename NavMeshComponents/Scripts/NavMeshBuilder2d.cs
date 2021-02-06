@@ -18,6 +18,9 @@ namespace UnityEngine.AI
         public NavMeshCollectGeometry CollectGeometry;
         public CollectObjects2d CollectObjects;
         public GameObject parent;
+#if UNITY_EDITOR
+        public bool hideEditorLogs;
+#endif
 
         public NavMeshBuilder2dWrapper()
         {
@@ -70,8 +73,10 @@ namespace UnityEngine.AI
                 case CollectObjects2d.All: 
                 default:
 #if UNITY_EDITOR
-                    if (registeredGrids != null && registeredGrids.Count > 0)
-                        Debug.Log($"Registered Grids: {registeredGrids.Count}");
+                    if (!hideEditorLogs) {
+                        if (registeredGrids != null && registeredGrids.Count > 0)
+                            Debug.Log($"Registered Grids: {registeredGrids.Count}");
+                    }                   
 #endif
                     if (registeredGrids != null && registeredGrids.Count > 0)
                         return registeredGrids;
@@ -130,7 +135,7 @@ namespace UnityEngine.AI
                             tilemap.CompressBounds();
                         }
 #if UNITY_EDITOR
-                        Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
+                        if (!builder.hideEditorLogs) Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
 #endif
                         var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
                         box.area = builder.defaultArea;
@@ -164,7 +169,7 @@ namespace UnityEngine.AI
                 }
             }
 #if UNITY_EDITOR
-            Debug.Log("Sources " + sources.Count);
+            if (!builder.hideEditorLogs) Debug.Log("Sources " + sources.Count);
 #endif
         }
 
@@ -183,7 +188,7 @@ namespace UnityEngine.AI
             if (mesh == null)
             {
 #if UNITY_EDITOR
-                Debug.Log($"{sprite.name} mesh is null");
+                if (!builder.hideEditorLogs) Debug.Log($"{sprite.name} mesh is null");
 #endif
                 return;
             }
@@ -214,7 +219,7 @@ namespace UnityEngine.AI
             if (mesh == null)
             {
 #if UNITY_EDITOR
-                Debug.Log($"{collider.name} mesh is null");
+                if (!builder.hideEditorLogs) Debug.Log($"{collider.name} mesh is null");
 #endif
                 return;
             }
