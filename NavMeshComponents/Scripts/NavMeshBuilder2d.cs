@@ -18,6 +18,7 @@ namespace UnityEngine.AI
         public NavMeshCollectGeometry CollectGeometry;
         public CollectObjects2d CollectObjects;
         public GameObject parent;
+        public bool hideEditorLogs;
 
         public NavMeshBuilder2dWrapper()
         {
@@ -109,7 +110,7 @@ namespace UnityEngine.AI
                             tilemap.CompressBounds();
                         }
 
-                        Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
+                        if (!builder.hideEditorLogs) Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
                         var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
                         box.area = builder.defaultArea;
                         sources.Add(box);
@@ -141,7 +142,7 @@ namespace UnityEngine.AI
                     }
                 }
             }
-            Debug.Log("Sources " + sources.Count);
+            if (!builder.hideEditorLogs) Debug.Log("Sources " + sources.Count);
         }
 
         private static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer sprite, int area, NavMeshBuilder2dWrapper builder)
@@ -158,7 +159,7 @@ namespace UnityEngine.AI
             mesh = builder.GetMesh(sprite.sprite);
             if (mesh == null)
             {
-                Debug.Log($"{sprite.name} mesh is null");
+                if (!builder.hideEditorLogs) Debug.Log($"{sprite.name} mesh is null");
                 return;
             }
             src.transform = Matrix4x4.TRS(Vector3.Scale(sprite.transform.position, builder.overrideVector), sprite.transform.rotation, sprite.transform.lossyScale);
@@ -187,7 +188,7 @@ namespace UnityEngine.AI
             mesh = builder.GetMesh(collider);
             if (mesh == null)
             {
-                Debug.Log($"{collider.name} mesh is null");
+                if (!builder.hideEditorLogs) Debug.Log($"{collider.name} mesh is null");
                 return;
             }
             if (collider.attachedRigidbody)
