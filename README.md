@@ -5,11 +5,13 @@ geometry, which allows characters to move intelligently around the game world.
 
 ![NavMesh](https://github.com/h8man/NavMeshPlus/wiki/images/NavMesh-04.png)
 
-# Unity NavMesh 2D Pathfinding 
+# Unity 2D Pathfinding 
 
-This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D. It is explores NavMeshComponents capabilities. (https://docs.unity3d.com/Manual/class-NavMeshSurface.html)
+This repo is a proof of concept of Unity NavMesh and Pathfinding in 2D. It is explores NavMeshComponents capabilities. [[link]](https://docs.unity3d.com/Manual/class-NavMeshSurface.html)
 
-# Info
+## Wiki [[here]](https://github.com/h8man/NavMeshPlus/wiki)
+
+See [how-to](https://github.com/h8man/NavMeshPlus/wiki/HOW-TO) for full tutorial
 
 ## Setup
 
@@ -27,17 +29,15 @@ The following line needs to be added to your `Packages/manifest.json` file in yo
 ```
 "com.h8man.2d.navmeshplus": "https://github.com/h8man/NavMeshPlus.git#master"
 ```
+## Misc
 
-### Misc
-Wiki: (https://github.com/h8man/NavMeshPlus/wiki/HOW-TO ).
+### How To [[pdf]](https://github.com/h8man/NavMeshPlus/blob/master/navmeshplus.pdf ).
 
-HOW TO:(https://github.com/h8man/NavMeshPlus/blob/master/navmeshplus.pdf ).
+### Demo [[github]](https://github.com/h8man/RedHotSweetPepper ).
 
-Demo:(https://github.com/h8man/RedHotSweetPepper ).
+### Discuss [[unityforum]](https://forum.unity.com/threads/2d-navmesh-pathfinding.503596/ ).
 
-Discuss:(https://forum.unity.com/threads/2d-navmesh-pathfinding.503596/ ).
-
-# 2D NavMesh
+## 2D NavMesh
 
 In repo you will find implementation of NavMeshSurface2d for tilemap top down games.
 
@@ -52,7 +52,7 @@ To use it in your project:
 How does it works:
 
 1. It uses https://docs.unity3d.com/Manual/class-NavMeshSurface.html as base implementation.
-2. Implements world bound calculation from Tilemap bounds.
-3. Implements source collector of tiles, sprites and 2d colliders, because NavMeshBuilder.CollectSources will not work
+2. Implements world bound calculation.
+3. Implements source collector of tiles, sprites and 2d colliders
 4. Creates walkable mesh box from world bounds.
-5. Convert tiles to sources as NavMeshBuilder would do.
+5. Convert tiles, sprites and 2d colliders to sources as NavMeshBuilder would do.
