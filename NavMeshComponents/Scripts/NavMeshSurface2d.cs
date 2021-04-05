@@ -199,6 +199,25 @@ namespace UnityEngine.AI
             }
         }
 
+        // Source: https://github.com/Unity-Technologies/NavMeshComponents/issues/97#issuecomment-528692289
+        public AsyncOperation BuildNavMeshAsync()
+        {
+            RemoveData();
+            m_NavMeshData = new NavMeshData(m_AgentTypeID)
+            {
+                name = gameObject.name,
+                position = transform.position,
+                rotation = transform.rotation
+            };
+
+            if (isActiveAndEnabled)
+            {
+                AddData();
+            }
+
+            return UpdateNavMesh(m_NavMeshData);
+        }
+
         public AsyncOperation UpdateNavMesh(NavMeshData data)
         {
             var sources = CollectSources();
