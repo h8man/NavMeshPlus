@@ -18,6 +18,9 @@ namespace UnityEngine.AI
         public NavMeshCollectGeometry CollectGeometry;
         public CollectObjects2d CollectObjects;
         public GameObject parent;
+#if UNITY_EDITOR
+        public bool hideEditorLogs;
+#endif
 
         public NavMeshBuilder2dWrapper()
         {
@@ -61,7 +64,7 @@ namespace UnityEngine.AI
 #endif
         }
 
-        internal IEnumerable<GameObject> GetRoot()
+        internal IEnumerable<GameObject> GetRoot(List<GameObject> registeredGrids = null)
         {
             switch (CollectObjects)
             {
@@ -69,16 +72,39 @@ namespace UnityEngine.AI
                 case CollectObjects2d.Volume: 
                 case CollectObjects2d.All: 
                 default:
-                    return new[] { GameObject.FindObjectOfType<Grid>().gameObject };
+#if UNITY_EDITOR
+                    if (!hideEditorLogs) {
+                        if (registeredGrids != null && registeredGrids.Count > 0)
+                            Debug.Log($"Registered Grids: {registeredGrids.Count}");
+                    }                   
+#endif
+                    if (registeredGrids != null && registeredGrids.Count > 0)
+                        return registeredGrids;
+                    else
+                        return new[] { GameObject.FindObjectOfType<Grid>().gameObject };
             }
         }
     }
 
-    class NavMeshBuilder2d
+    public static class NavMeshBuilder2d
     {
+        private static List<GameObject> m_registeredGrids = new List<GameObject>() { };
+
+        internal static void RegisterGrid(GameObject grid) {
+            m_registeredGrids.Add(grid);
+        }
+
+        internal static void UnregisterGrid(GameObject grid) {
+            m_registeredGrids.Remove(grid);
+        }
+
+        public static void ClearAllRegisteredGrids() {
+            m_registeredGrids.Clear();
+        }
+
         internal static void CollectSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dWrapper builder)
         {
-            var root = builder.GetRoot();
+            var root = builder.GetRoot(m_registeredGrids);
             foreach (var it in root)
             {
                 CollectSources(it, sources, builder);
@@ -108,8 +134,9 @@ namespace UnityEngine.AI
                         {
                             tilemap.CompressBounds();
                         }
-
-                        Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
+#if UNITY_EDITOR
+                        if (!builder.hideEditorLogs) Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
+#endif
                         var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
                         box.area = builder.defaultArea;
                         sources.Add(box);
@@ -141,7 +168,9 @@ namespace UnityEngine.AI
                     }
                 }
             }
-            Debug.Log("Sources " + sources.Count);
+#if UNITY_EDITOR
+            if (!builder.hideEditorLogs) Debug.Log("Sources " + sources.Count);
+#endif
         }
 
         private static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer sprite, int area, NavMeshBuilder2dWrapper builder)
@@ -158,7 +187,9 @@ namespace UnityEngine.AI
             mesh = builder.GetMesh(sprite.sprite);
             if (mesh == null)
             {
-                Debug.Log($"{sprite.name} mesh is null");
+#if UNITY_EDITOR
+                if (!builder.hideEditorLogs) Debug.Log($"{sprite.name} mesh is null");
+#endif
                 return;
             }
             src.transform = Matrix4x4.TRS(Vector3.Scale(sprite.transform.position, builder.overrideVector), sprite.transform.rotation, sprite.transform.lossyScale);
@@ -187,7 +218,9 @@ namespace UnityEngine.AI
             mesh = builder.GetMesh(collider);
             if (mesh == null)
             {
-                Debug.Log($"{collider.name} mesh is null");
+#if UNITY_EDITOR
+                if (!builder.hideEditorLogs) Debug.Log($"{collider.name} mesh is null");
+#endif
                 return;
             }
             if (collider.attachedRigidbody)

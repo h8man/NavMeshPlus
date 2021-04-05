@@ -31,6 +31,8 @@ namespace UnityEditor.AI
         SerializedProperty m_UseGeometry;
         SerializedProperty m_VoxelSize;
 
+        SerializedProperty m_HideEditorLogs;
+
 #if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
         SerializedProperty m_NavMeshData;
 #endif
@@ -82,6 +84,8 @@ namespace UnityEditor.AI
             m_TileSize = serializedObject.FindProperty("m_TileSize");
             m_UseGeometry = serializedObject.FindProperty("m_UseGeometry");
             m_VoxelSize = serializedObject.FindProperty("m_VoxelSize");
+
+            m_HideEditorLogs = serializedObject.FindProperty("m_HideEditorLogs");
 
 #if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
             m_NavMeshData = serializedObject.FindProperty("m_NavMeshData");
@@ -211,6 +215,11 @@ namespace UnityEditor.AI
                 EditorGUILayout.Space();
                 EditorGUI.indentLevel--;
             }
+
+            EditorGUILayout.Space();
+
+            // Hide editor logs
+            EditorGUILayout.PropertyField(m_HideEditorLogs);
 
             EditorGUILayout.Space();
 
