@@ -301,6 +301,13 @@ namespace UnityEditor.AI
                     }
                 }
                 GUILayout.EndHorizontal();
+                foreach (NavMeshSurface2d navSurface in targets)
+                {
+                    if (!Mathf.Approximately(navSurface.transform.eulerAngles.x, 270f))
+                    {
+                        EditorGUILayout.HelpBox("NavMeshSurface2d is not rotated respectively to (x-90;y0;z0). Apply rotation unless intended.", MessageType.Warning);
+                    }
+                }
             }
 
             // Show progress for the selected targets

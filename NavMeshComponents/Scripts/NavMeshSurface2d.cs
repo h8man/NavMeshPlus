@@ -361,6 +361,8 @@ namespace UnityEngine.AI
                     UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
                         worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
+                if (!hideEditorLogs && !Mathf.Approximately(transform.eulerAngles.x, 270f))
+                    Debug.LogWarning("NavMeshSurface2d is not rotated respectively to (x-90;y0;z0). Apply rotation unless intended.");
                 var builder = new NavMeshBuilder2dWrapper();
                 builder.defaultArea = defaultArea;
                 builder.layerMask = layerMask;
@@ -393,6 +395,8 @@ namespace UnityEngine.AI
                     var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
                     NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
                 }
+                if (!hideEditorLogs && !Mathf.Approximately(transform.eulerAngles.x, 270f))
+                    Debug.LogWarning("NavMeshSurface2d is not rotated respectively to (x-90;y0;z0). Apply rotation unless intended.");
                 var builder = new NavMeshBuilder2dWrapper();
                 builder.defaultArea = defaultArea;
                 builder.layerMask = layerMask;
