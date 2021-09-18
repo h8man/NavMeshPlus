@@ -124,6 +124,12 @@ namespace UnityEditor.AI
 
             EditorGUILayout.Space();
 
+            if ((CollectObjects)m_CollectObjects.enumValueIndex != CollectObjects.Children
+                && GameObject.FindObjectOfType<Grid>() == null)
+            {
+                EditorGUILayout.HelpBox($"{CollectObjects.All} or {CollectObjects.Volume} is not intended to be used without root Grid object in scene. Use {CollectObjects.Children} instead.", MessageType.Warning);
+            }
+
             EditorGUILayout.PropertyField(m_CollectObjects);
             if ((CollectObjects)m_CollectObjects.enumValueIndex == CollectObjects.Volume)
             {
