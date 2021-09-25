@@ -238,10 +238,14 @@ namespace UnityEngine.AI
 
                     if (!builder.overrideByGrid && tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite)
                     {
-                        mesh = builder.GetMesh(tilemap.GetSprite(vec3int));
-                        src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector) - tilemap.layoutGrid.cellGap, tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
-                        src.sourceObject = mesh;
-                        sources.Add(src);
+                        var sprite = tilemap.GetSprite(vec3int);
+                        if (sprite != null)
+                        {
+                            mesh = builder.GetMesh(sprite);
+                            src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector) - tilemap.layoutGrid.cellGap, tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
+                            src.sourceObject = mesh;
+                            sources.Add(src);
+                        }
                     }
                     else if (builder.useMeshPrefab != null || (builder.overrideByGrid && builder.useMeshPrefab != null))
                     {
