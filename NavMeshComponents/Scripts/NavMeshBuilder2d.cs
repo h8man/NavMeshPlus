@@ -18,9 +18,8 @@ namespace UnityEngine.AI
         public NavMeshCollectGeometry CollectGeometry;
         public CollectObjects2d CollectObjects;
         public GameObject parent;
-#if UNITY_EDITOR
         public bool hideEditorLogs;
-#endif
+        public bool hideEditorLogs;
 
         public NavMeshBuilder2dWrapper()
         {
@@ -134,9 +133,9 @@ namespace UnityEngine.AI
                         {
                             tilemap.CompressBounds();
                         }
-#if UNITY_EDITOR
+                      
                         if (!builder.hideEditorLogs) Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
-#endif
+                      
                         var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
                         box.area = builder.defaultArea;
                         sources.Add(box);
@@ -168,9 +167,7 @@ namespace UnityEngine.AI
                     }
                 }
             }
-#if UNITY_EDITOR
             if (!builder.hideEditorLogs) Debug.Log("Sources " + sources.Count);
-#endif
         }
 
         private static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer sprite, int area, NavMeshBuilder2dWrapper builder)
@@ -187,9 +184,7 @@ namespace UnityEngine.AI
             mesh = builder.GetMesh(sprite.sprite);
             if (mesh == null)
             {
-#if UNITY_EDITOR
                 if (!builder.hideEditorLogs) Debug.Log($"{sprite.name} mesh is null");
-#endif
                 return;
             }
             src.transform = Matrix4x4.TRS(Vector3.Scale(sprite.transform.position, builder.overrideVector), sprite.transform.rotation, sprite.transform.lossyScale);
@@ -218,9 +213,7 @@ namespace UnityEngine.AI
             mesh = builder.GetMesh(collider);
             if (mesh == null)
             {
-#if UNITY_EDITOR
                 if (!builder.hideEditorLogs) Debug.Log($"{collider.name} mesh is null");
-#endif
                 return;
             }
             if (collider.attachedRigidbody)
@@ -270,10 +263,14 @@ namespace UnityEngine.AI
 
                     if (!builder.overrideByGrid && tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite)
                     {
-                        mesh = builder.GetMesh(tilemap.GetSprite(vec3int));
-                        src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector) - tilemap.layoutGrid.cellGap, tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
-                        src.sourceObject = mesh;
-                        sources.Add(src);
+                        var sprite = tilemap.GetSprite(vec3int);
+                        if (sprite != null)
+                        {
+                            mesh = builder.GetMesh(sprite);
+                            src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector) - tilemap.layoutGrid.cellGap, tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
+                            src.sourceObject = mesh;
+                            sources.Add(src);
+                        }
                     }
                     else if (builder.useMeshPrefab != null || (builder.overrideByGrid && builder.useMeshPrefab != null))
                     {

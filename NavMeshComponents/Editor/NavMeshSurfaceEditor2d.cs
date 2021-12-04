@@ -124,6 +124,12 @@ namespace UnityEditor.AI
 
             EditorGUILayout.Space();
 
+            if ((CollectObjects)m_CollectObjects.enumValueIndex != CollectObjects.Children
+                && GameObject.FindObjectOfType<Grid>() == null)
+            {
+                EditorGUILayout.HelpBox($"{CollectObjects.All} or {CollectObjects.Volume} is not intended to be used without root Grid object in scene. Use {CollectObjects.Children} instead.", MessageType.Warning);
+            }
+
             EditorGUILayout.PropertyField(m_CollectObjects);
             if ((CollectObjects)m_CollectObjects.enumValueIndex == CollectObjects.Volume)
             {
@@ -301,6 +307,13 @@ namespace UnityEditor.AI
                     }
                 }
                 GUILayout.EndHorizontal();
+                foreach (NavMeshSurface2d navSurface in targets)
+                {
+                    if (!Mathf.Approximately(navSurface.transform.eulerAngles.x, 270f))
+                    {
+                        EditorGUILayout.HelpBox("NavMeshSurface2d is not rotated respectively to (x-90;y0;z0). Apply rotation unless intended.", MessageType.Warning);
+                    }
+                }
             }
 
             // Show progress for the selected targets
