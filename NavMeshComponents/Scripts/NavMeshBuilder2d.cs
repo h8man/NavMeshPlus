@@ -193,7 +193,7 @@ namespace UnityEngine.AI
             }
             if (collider.attachedRigidbody)
             {
-                src.transform = Matrix4x4.TRS(Vector3.Scale(collider.transform.position, builder.overrideVector), collider.transform.rotation, Vector3.one);
+                src.transform = Matrix4x4.TRS(Vector3.Scale(collider.attachedRigidbody.transform.position, builder.overrideVector), collider.attachedRigidbody.transform.rotation, Vector3.one);
             }
             else
             {
