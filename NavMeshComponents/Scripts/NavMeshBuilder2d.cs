@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 
 namespace UnityEngine.AI
 {
-    class NavMeshBuilder2dWrapper
+    class NavMeshBuilder2dState
     {
         public Dictionary<Sprite, Mesh> map;
         public Dictionary<uint, Mesh> coliderMap;
@@ -20,7 +20,7 @@ namespace UnityEngine.AI
         public GameObject parent;
         public bool hideEditorLogs;
 
-        public NavMeshBuilder2dWrapper()
+        public NavMeshBuilder2dState()
         {
             map = new Dictionary<Sprite, Mesh>();
             coliderMap = new Dictionary<uint, Mesh>();
@@ -77,7 +77,7 @@ namespace UnityEngine.AI
 
     class NavMeshBuilder2d
     {
-        internal static void CollectSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dWrapper builder)
+        internal static void CollectSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder)
         {
             var root = builder.GetRoot();
             foreach (var it in root)
@@ -86,7 +86,7 @@ namespace UnityEngine.AI
             }
         }
 
-        private static void CollectSources(GameObject root, List<NavMeshBuildSource> sources, NavMeshBuilder2dWrapper builder)
+        private static void CollectSources(GameObject root, List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder)
         {
             foreach (var modifier in root.GetComponentsInChildren<NavMeshModifier>())
             {
@@ -145,7 +145,7 @@ namespace UnityEngine.AI
             if (!builder.hideEditorLogs) Debug.Log("Sources " + sources.Count);
         }
 
-        private static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer sprite, int area, NavMeshBuilder2dWrapper builder)
+        private static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer sprite, int area, NavMeshBuilder2dState builder)
         {
             if (sprite == null)
             {
@@ -167,7 +167,7 @@ namespace UnityEngine.AI
             sources.Add(src);
         }
 
-        private static void CollectSources(List<NavMeshBuildSource> sources, NavMeshModifier modifier, int area, NavMeshBuilder2dWrapper builder)
+        private static void CollectSources(List<NavMeshBuildSource> sources, NavMeshModifier modifier, int area, NavMeshBuilder2dState builder)
         {
             var collider = modifier.GetComponent<Collider2D>();
             if (collider == null)
@@ -203,7 +203,7 @@ namespace UnityEngine.AI
             sources.Add(src);
         }
 
-        static private void CollectTileSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area, NavMeshBuilder2dWrapper builder)
+        static private void CollectTileSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area, NavMeshBuilder2dState builder)
         {
             var bound = tilemap.cellBounds;
 

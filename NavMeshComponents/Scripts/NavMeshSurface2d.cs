@@ -363,7 +363,7 @@ namespace UnityEngine.AI
                 }
                 if (!hideEditorLogs && !Mathf.Approximately(transform.eulerAngles.x, 270f))
                     Debug.LogWarning("NavMeshSurface2d is not rotated respectively to (x-90;y0;z0). Apply rotation unless intended.");
-                var builder = new NavMeshBuilder2dWrapper();
+                var builder = new NavMeshBuilder2dState();
                 builder.defaultArea = defaultArea;
                 builder.layerMask = layerMask;
                 builder.agentID = agentTypeID;
@@ -397,7 +397,7 @@ namespace UnityEngine.AI
                 }
                 if (!hideEditorLogs && !Mathf.Approximately(transform.eulerAngles.x, 270f))
                     Debug.LogWarning("NavMeshSurface2d is not rotated respectively to (x-90;y0;z0). Apply rotation unless intended.");
-                var builder = new NavMeshBuilder2dWrapper();
+                var builder = new NavMeshBuilder2dState();
                 builder.defaultArea = defaultArea;
                 builder.layerMask = layerMask;
                 builder.agentID = agentTypeID;

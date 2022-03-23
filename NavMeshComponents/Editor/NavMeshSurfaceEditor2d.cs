@@ -123,6 +123,7 @@ namespace UnityEditor.AI
             NavMeshComponentsGUIUtility.AgentTypePopup("Agent Type", m_AgentTypeID);
 
             EditorGUILayout.Space();
+            EditorGUILayout.HelpBox("This component will be removed in future releases, use NavMeshExtensions instead.", MessageType.Warning);
 
             if ((CollectObjects)m_CollectObjects.enumValueIndex != CollectObjects.Children
                 && GameObject.FindObjectOfType<Grid>() == null)
