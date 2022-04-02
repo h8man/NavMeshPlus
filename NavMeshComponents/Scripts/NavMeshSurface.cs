@@ -90,7 +90,7 @@ namespace UnityEngine.AI
         Quaternion m_LastRotation = Quaternion.identity;
 
         static readonly List<NavMeshSurface> s_NavMeshSurfaces = new List<NavMeshSurface>();
-        readonly List<NevMeshExtension> m_NevMeshExtensions = new List<NevMeshExtension>();
+        public INavMeshExtensionsProvider NevMeshExtensions { get; set; } = new NavMeshExtensionsProvider();
 
         public static List<NavMeshSurface> activeSurfaces
         {
@@ -108,15 +108,7 @@ namespace UnityEngine.AI
             RemoveData();
             Unregister(this);
         }
-        internal void RemoveExtension(NevMeshExtension navMeshExtension)
-        {
-            m_NevMeshExtensions.Remove(navMeshExtension);
-        }
 
-        internal void AddExtension(NevMeshExtension navMeshExtension)
-        {
-            m_NevMeshExtensions.Add(navMeshExtension);
-        }
         public void AddData()
         {
 #if UNITY_EDITOR
@@ -353,10 +345,10 @@ namespace UnityEngine.AI
                     UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
                         worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
-
-                for (int i = 0; i < m_NevMeshExtensions.Count; ++i)
+                var buildState = new NavMeshBuilderState();
+                for (int i = 0; i < NevMeshExtensions.Count; ++i)
                 {
-                    m_NevMeshExtensions[i].CollectSources(this, sources, new NavMeshBuilderState());
+                    NevMeshExtensions[i].CollectSources(this, sources, buildState);
                 }
             }
             else
@@ -376,9 +368,9 @@ namespace UnityEngine.AI
                     var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
                     NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
                 }
-                for (int i = 0; i < m_NevMeshExtensions.Count; ++i)
+                for (int i = 0; i < NevMeshExtensions.Count; ++i)
                 {
-                    m_NevMeshExtensions[i].CollectSources(this, sources, new NavMeshBuilderState());
+                    NevMeshExtensions[i].CollectSources(this, sources, new NavMeshBuilderState());
                 }
             }
 
@@ -415,10 +407,10 @@ namespace UnityEngine.AI
             worldToLocal = worldToLocal.inverse;
 
             var result = new Bounds();
-            for (int i = 0; i < m_NevMeshExtensions.Count; ++i)
+            var builderState = new NavMeshBuilderState() { result = result, worldToLocal = worldToLocal };
+            for (int i = 0; i < NevMeshExtensions.Count; ++i)
             {
-                var builderState = new NavMeshBuilderState() { result = result, worldToLocal = worldToLocal };
-                m_NevMeshExtensions[i].CollectSources(this, sources, builderState);
+                NevMeshExtensions[i].CalculateWorldBounds(this, sources, builderState);
                 result.Encapsulate(builderState.result);
             }
             foreach (var src in sources)

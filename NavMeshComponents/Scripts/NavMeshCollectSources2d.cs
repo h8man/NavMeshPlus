@@ -11,7 +11,7 @@ namespace NavMeshComponents.Extensions
 {
     [ExecuteAlways]
     [AddComponentMenu("Navigation/NavMeshCollectSources2d", 30)]
-    public class NavMeshCollectSources2d: NevMeshExtension
+    public class NavMeshCollectSources2d: NavMeshExtension
     {
         [SerializeField]
         bool m_OverrideByGrid;
@@ -31,21 +31,19 @@ namespace NavMeshComponents.Extensions
 
         public override void CalculateWorldBounds(NavMeshSurface surface, List<NavMeshBuildSource> sources, NavMeshBuilderState navNeshState)
         {
-            if ((int)surface.collectObjects != (int)CollectObjects2d.Children)
+            if (surface.collectObjects != CollectObjects.Volume)
             {
-                navNeshState.result.Encapsulate(CalculateGridWorldBounds(surface, navNeshState.worldToLocal));
+                navNeshState.result.Encapsulate(CalculateGridWorldBounds(surface, navNeshState.worldToLocal, navNeshState.result));
             }
         }
 
-        private static Bounds CalculateGridWorldBounds(NavMeshSurface surface, Matrix4x4 worldToLocal)
+        private static Bounds CalculateGridWorldBounds(NavMeshSurface surface, Matrix4x4 worldToLocal, Bounds bounds)
         {
-            var bounds = new Bounds();
             var grid = FindObjectOfType<Grid>();
-            var tilemaps = grid.GetComponentsInChildren<Tilemap>();
+            var tilemaps = grid?.GetComponentsInChildren<Tilemap>();
             if (tilemaps == null || tilemaps.Length < 1)
             {
-
-                throw new NullReferenceException("Add at least one tilemap");
+                return bounds;
             }
             foreach (var tilemap in tilemaps)
             {
@@ -54,9 +52,9 @@ namespace NavMeshComponents.Extensions
                 bounds.Encapsulate(lbounds);
                 //Debug.Log($"To World Bounds: {bounds}");
             }
-            bounds.Expand(0.1f);
             return bounds;
         }
+
         public override void CollectSources(NavMeshSurface surface, List<NavMeshBuildSource> sources, NavMeshBuilderState navNeshState)
         {
             if (!surface.hideEditorLogs && !Mathf.Approximately(transform.eulerAngles.x, 270f))
@@ -73,6 +71,7 @@ namespace NavMeshComponents.Extensions
             builder.CollectObjects = (CollectObjects2d)(int)surface.collectObjects;
             builder.parent = surface.gameObject;
             builder.hideEditorLogs = surface.hideEditorLogs;
+            builder.SetRoot(navNeshState.roots);
             NavMeshBuilder2d.CollectSources(sources, builder);
         }
     }
