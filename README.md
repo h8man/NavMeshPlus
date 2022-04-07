@@ -1,6 +1,6 @@
 # NavMeshPlus
 
-NavMesh Extensions building components provide you with ability to create navigation meshes that are generated automatically from your Scene
+NavMeshComponents.Extensions provides you with ability to create navigation meshes that are generated automatically from your Scene
 geometry, which allows characters to move intelligently around the game world.
 
 ![NavMesh](https://github.com/h8man/NavMeshPlus/wiki/images/NavMesh-04.png)
