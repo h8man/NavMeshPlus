@@ -1,3 +1,4 @@
+using NavMeshComponents.Extensions;
 using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -73,6 +74,10 @@ namespace UnityEngine.AI
         bool m_BuildHeightMesh;
         public bool buildHeightMesh { get { return m_BuildHeightMesh; } set { m_BuildHeightMesh = value; } }
 
+        [SerializeField]
+        bool m_HideEditorLogs;
+        public bool hideEditorLogs { get { return m_HideEditorLogs; } set { m_HideEditorLogs = value; } }
+
         // Reference to whole scene navmesh data asset.
         [UnityEngine.Serialization.FormerlySerializedAs("m_BakedNavMeshData")]
         [SerializeField]
@@ -85,6 +90,7 @@ namespace UnityEngine.AI
         Quaternion m_LastRotation = Quaternion.identity;
 
         static readonly List<NavMeshSurface> s_NavMeshSurfaces = new List<NavMeshSurface>();
+        public INavMeshExtensionsProvider NevMeshExtensions { get; set; } = new NavMeshExtensionsProvider();
 
         public static List<NavMeshSurface> activeSurfaces
         {
@@ -139,7 +145,7 @@ namespace UnityEngine.AI
             var buildSettings = NavMesh.GetSettingsByID(m_AgentTypeID);
             if (buildSettings.agentTypeID == -1)
             {
-                Debug.LogWarning("No build settings for agent type ID " + agentTypeID, this);
+                if (!m_HideEditorLogs) Debug.LogWarning("No build settings for agent type ID " + agentTypeID, this);
                 buildSettings.agentTypeID = m_AgentTypeID;
             }
 
@@ -179,6 +185,25 @@ namespace UnityEngine.AI
                 if (isActiveAndEnabled)
                     AddData();
             }
+        }
+
+        // Source: https://github.com/Unity-Technologies/NavMeshComponents/issues/97#issuecomment-528692289
+        public AsyncOperation BuildNavMeshAsync()
+        {
+            RemoveData();
+            m_NavMeshData = new NavMeshData(m_AgentTypeID)
+            {
+                name = gameObject.name,
+                position = transform.position,
+                rotation = transform.rotation
+            };
+
+            if (isActiveAndEnabled)
+            {
+                AddData();
+            }
+
+            return UpdateNavMesh(m_NavMeshData);
         }
 
         public AsyncOperation UpdateNavMesh(NavMeshData data)
@@ -320,6 +345,11 @@ namespace UnityEngine.AI
                     UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
                         worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
+                var buildState = new NavMeshBuilderState();
+                for (int i = 0; i < NevMeshExtensions.Count; ++i)
+                {
+                    NevMeshExtensions[i].CollectSources(this, sources, buildState);
+                }
             }
             else
 #endif
@@ -337,6 +367,10 @@ namespace UnityEngine.AI
                     Matrix4x4 localToWorld = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
                     var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
                     NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
+                }
+                for (int i = 0; i < NevMeshExtensions.Count; ++i)
+                {
+                    NevMeshExtensions[i].CollectSources(this, sources, new NavMeshBuilderState());
                 }
             }
 
@@ -356,7 +390,7 @@ namespace UnityEngine.AI
             return new Vector3(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
         }
 
-        static Bounds GetWorldBounds(Matrix4x4 mat, Bounds bounds)
+        public static Bounds GetWorldBounds(Matrix4x4 mat, Bounds bounds)
         {
             var absAxisX = Abs(mat.MultiplyVector(Vector3.right));
             var absAxisY = Abs(mat.MultiplyVector(Vector3.up));
@@ -373,6 +407,12 @@ namespace UnityEngine.AI
             worldToLocal = worldToLocal.inverse;
 
             var result = new Bounds();
+            var builderState = new NavMeshBuilderState() { result = result, worldToLocal = worldToLocal };
+            for (int i = 0; i < NevMeshExtensions.Count; ++i)
+            {
+                NevMeshExtensions[i].CalculateWorldBounds(this, sources, builderState);
+                result.Encapsulate(builderState.result);
+            }
             foreach (var src in sources)
             {
                 switch (src.shape)
@@ -453,7 +493,7 @@ namespace UnityEngine.AI
         {
             if (UnshareNavMeshAsset())
             {
-                Debug.LogWarning("Duplicating NavMeshSurface does not duplicate the referenced navmesh data", this);
+                if (!m_HideEditorLogs) Debug.LogWarning("Duplicating NavMeshSurface does not duplicate the referenced navmesh data", this);
                 m_NavMeshData = null;
             }
 
