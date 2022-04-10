@@ -368,9 +368,10 @@ namespace UnityEngine.AI
                     var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
                     NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
                 }
+                var buildState = new NavMeshBuilderState();
                 for (int i = 0; i < NevMeshExtensions.Count; ++i)
                 {
-                    NevMeshExtensions[i].CollectSources(this, sources, new NavMeshBuilderState());
+                    NevMeshExtensions[i].CollectSources(this, sources, buildState);
                 }
             }
 
