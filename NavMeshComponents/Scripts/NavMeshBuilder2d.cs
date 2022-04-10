@@ -98,6 +98,7 @@ namespace UnityEngine.AI
             {
                 CollectSources(it, sources, builder);
             }
+            if (!builder.hideEditorLogs) Debug.Log("Sources " + sources.Count);
         }
 
         private static void CollectSources(GameObject root, List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder)
@@ -128,7 +129,6 @@ namespace UnityEngine.AI
                     CollectSources(sources, builder, modifier, area);
                 }
             }
-            if (!builder.hideEditorLogs) Debug.Log("Sources " + sources.Count);
         }
 
         private static void CollectSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder, NavMeshModifier modifier, int area)
@@ -236,7 +236,6 @@ namespace UnityEngine.AI
             Quaternion rot = default;
 
             var src = new NavMeshBuildSource();
-            src.shape = NavMeshBuildSourceShape.Mesh;
             src.area = area;
 
             if (builder.useMeshPrefab != null)
@@ -262,7 +261,8 @@ namespace UnityEngine.AI
                         if (sprite != null)
                         {
                             Mesh mesh = builder.GetMesh(sprite);
-                            src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector) - tilemap.layoutGrid.cellGap, tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
+                            src.transform = GetCellTransformMatrix(tilemap, builder.overrideVector, vec3int);
+                            src.shape = NavMeshBuildSourceShape.Mesh;
                             src.sourceObject = mesh;
                             sources.Add(src);
                         }
@@ -270,19 +270,24 @@ namespace UnityEngine.AI
                     else if (builder.useMeshPrefab != null || (builder.overrideByGrid && builder.useMeshPrefab != null))
                     {
                         src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector), rot, size);
+                        src.shape = NavMeshBuildSourceShape.Mesh;
                         src.sourceObject = sharedMesh;
                         sources.Add(src);
                     }
                     else //default to box
                     {
-                        var boxsrc = new NavMeshBuildSource();
-                        boxsrc.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector) - tilemap.layoutGrid.cellGap, tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
-                        boxsrc.shape = NavMeshBuildSourceShape.Box;
-                        boxsrc.size = size;
-                        sources.Add(boxsrc);
+                        src.transform = GetCellTransformMatrix(tilemap, builder.overrideVector, vec3int);
+                        src.shape = NavMeshBuildSourceShape.Box;
+                        src.size = size;
+                        sources.Add(src);
                     }
                 }
             }
+        }
+
+        public static Matrix4x4 GetCellTransformMatrix(Tilemap tilemap, Vector3 scale, Vector3Int vec3int)
+        {
+            return Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), scale) - tilemap.layoutGrid.cellGap, tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
         }
 
         internal static void sprite2mesh(Sprite sprite, Mesh mesh)
