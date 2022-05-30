@@ -10,7 +10,7 @@ namespace NavMeshComponents.Extensions
         public int Order { get; protected set; }
         public virtual void CollectSources(NavMeshSurface surface, List<NavMeshBuildSource> sources, NavMeshBuilderState navNeshState) { }
         public virtual void CalculateWorldBounds(NavMeshSurface surface, List<NavMeshBuildSource> sources, NavMeshBuilderState navNeshState) { }
-
+        public virtual void PostCollectSources(NavMeshSurface surface, List<NavMeshBuildSource> sources, NavMeshBuilderState navNeshState) { }
         public NavMeshSurface NavMeshSurfaceOwner
         {
             get
@@ -52,16 +52,6 @@ namespace NavMeshComponents.Extensions
                 else
                     NavMeshSurfaceOwner.NevMeshExtensions.Remove(this);
             }
-            mExtraState = null;
         }
-        protected T GetExtraState<T>() where T : class, new()
-        {
-            if (mExtraState == null)
-                mExtraState = new Dictionary<Type, System.Object>();
-            if (!mExtraState.TryGetValue(typeof(T), out System.Object extra))
-                extra = mExtraState[typeof(T)] = new T();
-            return extra as T;
-        }
-        private Dictionary<Type, System.Object> mExtraState;
     }
 }

@@ -173,7 +173,11 @@ namespace UnityEngine.AI
             {
                 sourcesBounds = CalculateWorldBounds(sources);
             }
-
+            var builderState = new NavMeshBuilderState() { worldBounds = sourcesBounds };
+            for (int i = 0; i < NevMeshExtensions.Count; ++i)
+            {
+                NevMeshExtensions[i].PostCollectSources(this, sources, builderState);
+            }
             var data = NavMeshBuilder.BuildNavMeshData(GetBuildSettings(),
                     sources, sourcesBounds, transform.position, transform.rotation);
 
@@ -214,8 +218,14 @@ namespace UnityEngine.AI
             // But is similar to reflection probe - and since navmesh data has no scaling support - it is the right choice here.
             var sourcesBounds = new Bounds(m_Center, Abs(m_Size));
             if (m_CollectObjects == CollectObjects.All || m_CollectObjects == CollectObjects.Children)
+            {
                 sourcesBounds = CalculateWorldBounds(sources);
-
+            }
+            var builderState = new NavMeshBuilderState() { worldBounds = sourcesBounds };
+            for (int i = 0; i < NevMeshExtensions.Count; ++i)
+            {
+                NevMeshExtensions[i].PostCollectSources(this, sources, builderState);
+            }
             return NavMeshBuilder.UpdateNavMeshDataAsync(data, GetBuildSettings(), sources, sourcesBounds);
         }
 
@@ -401,18 +411,18 @@ namespace UnityEngine.AI
             return new Bounds(worldPosition, worldSize);
         }
 
-        Bounds CalculateWorldBounds(List<NavMeshBuildSource> sources)
+        public Bounds CalculateWorldBounds(List<NavMeshBuildSource> sources)
         {
             // Use the unscaled matrix for the NavMeshSurface
             Matrix4x4 worldToLocal = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
             worldToLocal = worldToLocal.inverse;
 
             var result = new Bounds();
-            var builderState = new NavMeshBuilderState() { result = result, worldToLocal = worldToLocal };
+            var builderState = new NavMeshBuilderState() { worldBounds = result, worldToLocal = worldToLocal };
             for (int i = 0; i < NevMeshExtensions.Count; ++i)
             {
                 NevMeshExtensions[i].CalculateWorldBounds(this, sources, builderState);
-                result.Encapsulate(builderState.result);
+                result.Encapsulate(builderState.worldBounds);
             }
             foreach (var src in sources)
             {

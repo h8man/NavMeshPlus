@@ -19,7 +19,7 @@ namespace NavMeshComponents.Extensions
 
         protected override void Awake()
         {
-            Order = -100;
+            Order = -1000;
             base.Awake();
         }
 

@@ -33,7 +33,7 @@ namespace NavMeshComponents.Extensions
         {
             if (surface.collectObjects != CollectObjects.Volume)
             {
-                navNeshState.result.Encapsulate(CalculateGridWorldBounds(surface, navNeshState.worldToLocal, navNeshState.result));
+                navNeshState.worldBounds.Encapsulate(CalculateGridWorldBounds(surface, navNeshState.worldToLocal, navNeshState.worldBounds));
             }
         }
 
@@ -57,9 +57,21 @@ namespace NavMeshComponents.Extensions
 
         public override void CollectSources(NavMeshSurface surface, List<NavMeshBuildSource> sources, NavMeshBuilderState navNeshState)
         {
-            if (!surface.hideEditorLogs && !Mathf.Approximately(transform.eulerAngles.x, 270f))
-                Debug.LogWarning("NavMeshSurface2d is not rotated respectively to (x-90;y0;z0). Apply rotation unless intended.");
-            var builder = new NavMeshBuilder2dState();
+            if (!surface.hideEditorLogs)
+            {
+                if (!Mathf.Approximately(transform.eulerAngles.x, 270f))
+                {
+                    Debug.LogWarning("NavMeshSurface is not rotated respectively to (x-90;y0;z0). Apply rotation unless intended.");
+                }
+                if (Application.isPlaying)
+                {
+                    if (surface.useGeometry == NavMeshCollectGeometry.PhysicsColliders && Time.frameCount <= 1)
+                    {
+                        Debug.LogWarning("Use Geometry - Physics Colliders option in NavMeshSurface may cause inaccurate mesh bake if executed before Physics update.");
+                    }
+                }
+            }
+            var builder = navNeshState.GetExtraState<NavMeshBuilder2dState>();
             builder.defaultArea = surface.defaultArea;
             builder.layerMask = surface.layerMask;
             builder.agentID = surface.agentTypeID;
