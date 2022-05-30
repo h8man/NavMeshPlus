@@ -9,6 +9,7 @@ namespace UnityEngine.AI
     {
         public Dictionary<Sprite, Mesh> map;
         public Dictionary<uint, Mesh> coliderMap;
+        public Action<Object, NavMeshBuildSource> lookupCallback;
         public int defaultArea;
         public int layerMask;
         public int agentID;
@@ -20,6 +21,7 @@ namespace UnityEngine.AI
         public CollectObjects2d CollectObjects;
         public GameObject parent;
         public bool hideEditorLogs;
+        
         private IEnumerable<GameObject> _root;
         public IEnumerable<GameObject> Root => _root ?? GetRoot();
 
@@ -173,26 +175,28 @@ namespace UnityEngine.AI
             }
         }
 
-        private static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer sprite, int area, NavMeshBuilder2dState builder)
+        private static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer spriteRenderer, int area, NavMeshBuilder2dState builder)
         {
-            if (sprite == null)
+            if (spriteRenderer == null)
             {
+                return;
+            }
+            Mesh mesh;
+            mesh = builder.GetMesh(spriteRenderer.sprite);
+            if (mesh == null)
+            {
+                if (!builder.hideEditorLogs) Debug.Log($"{spriteRenderer.name} mesh is null");
                 return;
             }
             var src = new NavMeshBuildSource();
             src.shape = NavMeshBuildSourceShape.Mesh;
+            src.component = spriteRenderer;
             src.area = area;
-
-            Mesh mesh;
-            mesh = builder.GetMesh(sprite.sprite);
-            if (mesh == null)
-            {
-                if (!builder.hideEditorLogs) Debug.Log($"{sprite.name} mesh is null");
-                return;
-            }
-            src.transform = Matrix4x4.TRS(Vector3.Scale(sprite.transform.position, builder.overrideVector), sprite.transform.rotation, sprite.transform.lossyScale);
+            src.transform = Matrix4x4.TRS(Vector3.Scale(spriteRenderer.transform.position, builder.overrideVector), spriteRenderer.transform.rotation, spriteRenderer.transform.lossyScale);
             src.sourceObject = mesh;
             sources.Add(src);
+
+            builder.lookupCallback?.Invoke(spriteRenderer.gameObject, src);
         }
 
         private static void CollectSources(List<NavMeshBuildSource> sources, Collider2D collider, int area, NavMeshBuilder2dState builder)
@@ -202,10 +206,6 @@ namespace UnityEngine.AI
                 collider = collider.GetComponent<CompositeCollider2D>();
             }
 
-            var src = new NavMeshBuildSource();
-            src.shape = NavMeshBuildSourceShape.Mesh;
-            src.area = area;
-
             Mesh mesh;
             mesh = builder.GetMesh(collider);
             if (mesh == null)
@@ -213,6 +213,12 @@ namespace UnityEngine.AI
                 if (!builder.hideEditorLogs) Debug.Log($"{collider.name} mesh is null");
                 return;
             }
+
+            var src = new NavMeshBuildSource();
+            src.shape = NavMeshBuildSourceShape.Mesh;
+            src.area = area;
+            src.component = collider;
+            src.sourceObject = mesh;
             if (collider.attachedRigidbody)
             {
                 src.transform = Matrix4x4.TRS(Vector3.Scale(collider.attachedRigidbody.transform.position, builder.overrideVector), collider.attachedRigidbody.transform.rotation, Vector3.one);
@@ -221,8 +227,10 @@ namespace UnityEngine.AI
             {
                 src.transform = Matrix4x4.identity;
             }
-            src.sourceObject = mesh;
+
             sources.Add(src);
+
+            builder.lookupCallback?.Invoke(collider.gameObject, src);
         }
 
         static private void CollectTileSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area, NavMeshBuilder2dState builder)
@@ -255,33 +263,39 @@ namespace UnityEngine.AI
                         continue;
                     }
 
-                    if (!builder.overrideByGrid && tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite)
-                    {
-                        var sprite = tilemap.GetSprite(vec3int);
-                        if (sprite != null)
-                        {
-                            Mesh mesh = builder.GetMesh(sprite);
-                            src.transform = GetCellTransformMatrix(tilemap, builder.overrideVector, vec3int);
-                            src.shape = NavMeshBuildSourceShape.Mesh;
-                            src.sourceObject = mesh;
-                            sources.Add(src);
-                        }
-                    }
-                    else if (builder.useMeshPrefab != null || (builder.overrideByGrid && builder.useMeshPrefab != null))
-                    {
-                        src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector), rot, size);
-                        src.shape = NavMeshBuildSourceShape.Mesh;
-                        src.sourceObject = sharedMesh;
-                        sources.Add(src);
-                    }
-                    else //default to box
-                    {
-                        src.transform = GetCellTransformMatrix(tilemap, builder.overrideVector, vec3int);
-                        src.shape = NavMeshBuildSourceShape.Box;
-                        src.size = size;
-                        sources.Add(src);
-                    }
+                    CollectTile(tilemap, builder, vec3int, size, sharedMesh, rot, ref src);
+                    sources.Add(src);
+
+                    builder.lookupCallback?.Invoke(tilemap.GetInstantiatedObject(vec3int), src);
                 }
+            }
+        }
+
+        private static void CollectTile(Tilemap tilemap, NavMeshBuilder2dState builder, Vector3Int vec3int, Vector3 size, Mesh sharedMesh, Quaternion rot, ref NavMeshBuildSource src)
+        {
+            if (!builder.overrideByGrid && tilemap.GetColliderType(vec3int) == Tile.ColliderType.Sprite)
+            {
+                var sprite = tilemap.GetSprite(vec3int);
+                if (sprite != null)
+                {
+                    Mesh mesh = builder.GetMesh(sprite);
+                    src.component = tilemap;
+                    src.transform = GetCellTransformMatrix(tilemap, builder.overrideVector, vec3int);
+                    src.shape = NavMeshBuildSourceShape.Mesh;
+                    src.sourceObject = mesh;
+                }
+            }
+            else if (builder.useMeshPrefab != null || (builder.overrideByGrid && builder.useMeshPrefab != null))
+            {
+                src.transform = Matrix4x4.TRS(Vector3.Scale(tilemap.GetCellCenterWorld(vec3int), builder.overrideVector), rot, size);
+                src.shape = NavMeshBuildSourceShape.Mesh;
+                src.sourceObject = sharedMesh;
+            }
+            else //default to box
+            {
+                src.transform = GetCellTransformMatrix(tilemap, builder.overrideVector, vec3int);
+                src.shape = NavMeshBuildSourceShape.Box;
+                src.size = size;
             }
         }
 
