@@ -26,8 +26,6 @@ namespace NavMeshComponents.Extensions
     
             var surf = target as NavMeshCollectSources2d;
 
-            EditorGUILayout.Space();
-
             EditorGUILayout.PropertyField(m_OverrideByGrid);
             using (new EditorGUI.DisabledScope(!m_OverrideByGrid.boolValue))
             {

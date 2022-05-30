@@ -19,6 +19,7 @@ namespace NavMeshComponents.Extensions
             serializedObject.Update();
     
             var surf = target as NavMeshCollectRootSources2d;
+            EditorGUILayout.HelpBox("Add GameObjects to create NavMesh form it and it's ancestors", MessageType.Info);
 
             if (surf.NavMeshSurfaceOwner.collectObjects != CollectObjects.Children)
             {
