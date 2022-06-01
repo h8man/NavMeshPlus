@@ -22,7 +22,7 @@ namespace UnityEngine.AI
         public GameObject parent;
         public bool hideEditorLogs;
         
-        private IEnumerable<GameObject> _root;
+        protected IEnumerable<GameObject> _root;
         public IEnumerable<GameObject> Root => _root ?? GetRoot();
 
         public NavMeshBuilder2dState()
@@ -48,7 +48,7 @@ namespace UnityEngine.AI
             return mesh;
         }
 
-        internal Mesh GetMesh(Collider2D collider)
+        public Mesh GetMesh(Collider2D collider)
         {
 #if UNITY_2019_3_OR_NEWER
             Mesh mesh;
@@ -71,7 +71,7 @@ namespace UnityEngine.AI
         {
             _root = root;
         }
-        internal IEnumerable<GameObject> GetRoot()
+        public IEnumerable<GameObject> GetRoot()
         {
             switch (CollectObjects)
             {
@@ -94,7 +94,7 @@ namespace UnityEngine.AI
 
     class NavMeshBuilder2d
     {
-        internal static void CollectSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder)
+        public static void CollectSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder)
         {
             foreach (var it in builder.Root)
             {
@@ -103,7 +103,7 @@ namespace UnityEngine.AI
             if (!builder.hideEditorLogs) Debug.Log("Sources " + sources.Count);
         }
 
-        private static void CollectSources(GameObject root, List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder)
+        public static void CollectSources(GameObject root, List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder)
         {
             foreach (var modifier in root.GetComponentsInChildren<NavMeshModifier>())
             {
@@ -133,7 +133,7 @@ namespace UnityEngine.AI
             }
         }
 
-        private static void CollectSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder, NavMeshModifier modifier, int area)
+        public static void CollectSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder, NavMeshModifier modifier, int area)
         {
             if (builder.CollectGeometry == NavMeshCollectGeometry.PhysicsColliders)
             {
@@ -175,7 +175,7 @@ namespace UnityEngine.AI
             }
         }
 
-        private static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer spriteRenderer, int area, NavMeshBuilder2dState builder)
+        public static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer spriteRenderer, int area, NavMeshBuilder2dState builder)
         {
             if (spriteRenderer == null)
             {
@@ -199,7 +199,7 @@ namespace UnityEngine.AI
             builder.lookupCallback?.Invoke(spriteRenderer.gameObject, src);
         }
 
-        private static void CollectSources(List<NavMeshBuildSource> sources, Collider2D collider, int area, NavMeshBuilder2dState builder)
+        public static void CollectSources(List<NavMeshBuildSource> sources, Collider2D collider, int area, NavMeshBuilder2dState builder)
         { 
             if (collider.usedByComposite)
             {
@@ -233,7 +233,7 @@ namespace UnityEngine.AI
             builder.lookupCallback?.Invoke(collider.gameObject, src);
         }
 
-        static private void CollectTileSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area, NavMeshBuilder2dState builder)
+        public static void CollectTileSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area, NavMeshBuilder2dState builder)
         {
             var bound = tilemap.cellBounds;
 
