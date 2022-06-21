@@ -81,12 +81,14 @@ namespace UnityEngine.AI
                 default:
                 {
                     var list = new List<GameObject>();
+                    var testlist = new List<GameObject>();
                     for (int i = 0; i < SceneManager.sceneCount; ++i)
                     {
                         var s = SceneManager.GetSceneAt(i);
                         s.GetRootGameObjects(list);
+                        testlist.AddRange(list);
                     }
-                    return list;
+                    return testlist;
                 }
             }
         }
