@@ -100,6 +100,7 @@ namespace UnityEngine.AI
         {
             foreach (var it in builder.Root)
             {
+                if(!it.activeSelf){continue;}
                 CollectSources(it, sources, builder);
             }
             if (!builder.hideEditorLogs) Debug.Log("Sources " + sources.Count);
