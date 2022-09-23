@@ -48,13 +48,13 @@ namespace NavMeshComponents.Extensions
                 {
                     foreach (NavMeshCollectSources2d item in targets)
                     {
-                        item.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
+                        item.transform.rotation = Quaternion.Euler(-89.98f, 0f, 0f);
                     }
                 }
                 GUILayout.EndHorizontal();
                 foreach (NavMeshCollectSources2d navSurface in targets)
                 {
-                    if (!Mathf.Approximately(navSurface.transform.eulerAngles.x, 270f))
+                    if (!Mathf.Approximately(navSurface.transform.eulerAngles.x, 270.0198f))
                     {
                         EditorGUILayout.HelpBox("NavMeshSurface is not rotated respectively to (x-90;y0;z0). Apply rotation unless intended.", MessageType.Warning);
                     }
