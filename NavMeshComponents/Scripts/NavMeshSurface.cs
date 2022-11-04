@@ -436,9 +436,11 @@ namespace UnityEngine.AI
                     }
                     case NavMeshBuildSourceShape.Terrain:
                     {
+#if IS_TERRAIN_USED
                         // Terrain pivot is lower/left corner - shift bounds accordingly
                         var t = src.sourceObject as TerrainData;
                         result.Encapsulate(GetWorldBounds(worldToLocal * src.transform, new Bounds(0.5f * t.size, t.size)));
+#endif
                         break;
                     }
                     case NavMeshBuildSourceShape.Box:
