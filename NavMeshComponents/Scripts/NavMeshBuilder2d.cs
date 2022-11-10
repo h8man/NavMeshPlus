@@ -96,6 +96,74 @@ namespace UnityEngine.AI
 
     class NavMeshBuilder2d
     {
+        internal static void CollectListSources(List<NavMeshBuildSource> sources, List<Vector2Int> slist, int area, NavMeshBuilder2dWrapper builder, Vector3 offset)
+        {
+            var size = new Vector3(1, 0.5f, 0);
+            Mesh sharedMesh = null;
+            Quaternion rot = default;
+
+            var src = new NavMeshBuildSource();
+            src.shape = NavMeshBuildSourceShape.Mesh;
+            src.area = area;
+
+            Vector3Int tpos = new Vector3Int(0, 0, 0);
+
+
+            if (builder.useMeshPrefab != null)
+            {
+                sharedMesh = builder.useMeshPrefab.GetComponent<MeshFilter>().sharedMesh;
+                //Debug.Log("Mesh.name is " + sharedMesh.name);
+
+                size = builder.useMeshPrefab.transform.localScale;
+                //Debug.Log("Mesh.size s " + size);
+
+                rot = builder.useMeshPrefab.transform.rotation;
+            }
+            var new_pos = new Vector3(0, 0, 0);
+            //Quaternion myrot = Quaternion.identity;
+            Quaternion myrot = Quaternion.Euler(0, 0, 35.0f);
+
+            Matrix4x4 myt = Matrix4x4.TRS(new_pos, myrot, Vector3.one);
+
+            for (int x = 0; x < slist.Count; x++)
+            {
+                /* this does a cell to world but we dont want to reference the tilemap */
+                /* so are assuming the cell width and height and implementing here for speed */
+                //new_pos = t.CellToWorld(new_cell);
+                new_pos.x = ((slist[x].x - slist[x].y) * 0.5F) + offset.x;
+                new_pos.y = (((slist[x].x + slist[x].y) * 0.25f) + 0.25f) + offset.y;
+
+
+                if (builder.useMeshPrefab != null || (builder.overrideByGrid && builder.useMeshPrefab != null))
+                {
+                    // Debug.Log("Shared mesh. Override:" + builder.overrideVector + " rot:" + rot + " size:" + size);
+                    src.transform = Matrix4x4.TRS(Vector3.Scale(new_pos, builder.overrideVector), rot, size);
+
+                    src.sourceObject = sharedMesh;
+                    sources.Add(src);
+                }
+                else //default to box
+                {
+                    var boxsrc = new NavMeshBuildSource();
+
+                    myt.SetTRS(new_pos, myrot, Vector3.one);
+
+                    //Debug.Log(myt);
+                    //Matrix4x4 ct =  base_transform.Tr;
+                    // boxsrc.transform = Matrix4x4.TRS(Vector3.Scale(new_pos, builder.overrideVector), tilemap.transform.rotation, tilemap.transform.lossyScale) * tilemap.orientationMatrix * tilemap.GetTransformMatrix(vec3int);
+                    //boxsrc.transform = Matrix4x4.TRS(Vector3.Scale(new_pos, builder.overrideVector), rot, size);
+                    //boxsrc.transform = Matrix4x4.TRS(new_pos, rot, size);
+                    boxsrc.transform = myt;
+
+                    boxsrc.shape = NavMeshBuildSourceShape.Box;
+                    boxsrc.size = size;
+                    boxsrc.area = area;
+                    //Debug.Log("Size is " + size);
+                    sources.Add(boxsrc);
+                }
+            }
+        }
+
         public static void CollectSources(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder)
         {
             foreach (var it in builder.Root)

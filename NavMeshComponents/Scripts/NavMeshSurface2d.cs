@@ -178,6 +178,28 @@ namespace UnityEngine.AI
             return buildSettings;
         }
 
+        public List<NavMeshBuildSource> WalkList_CollectSources(Vector3 offset, List<Vector2Int> walk_list)
+        {
+            var sources = new List<NavMeshBuildSource>();
+
+            //Debug.Log("Collect INT List Sources start with" + sources.Count);
+
+            var builder = new NavMeshBuilder2dWrapper();
+
+            builder.defaultArea = defaultArea;
+            builder.layerMask = layerMask;
+            builder.agentID = agentTypeID;
+            builder.useMeshPrefab = useMeshPrefab;
+            builder.overrideByGrid = overrideByGrid;
+            builder.compressBounds = compressBounds;
+            builder.overrideVector = overrideVector;
+            builder.CollectGeometry = useGeometry;
+
+            NavMeshBuilder2d.CollectListSources(sources, walk_list, 0, builder, offset);
+
+            return sources;
+        }
+
         public void BuildNavMesh()
         {
             var sources = CollectSources();

@@ -1,0 +1,22 @@
+﻿<Properties StartupConfiguration="{AD46D4C2-D535-47B8-9FCD-CF5CB46FABB6}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../Scripts/NavMeshSurface2d.cs">
+    <Files>
+      <File FileName="../Scripts/NavMeshBuilder2d.cs" Line="95" Column="6" />
+      <File FileName="../Scripts/NavMeshSurface2d.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="NavmeshSolution" expanded="True" selected="True" />
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" />
+  <MonoDevelop.Ide.ItemProperties.NavmeshProject FirstBuild="True" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

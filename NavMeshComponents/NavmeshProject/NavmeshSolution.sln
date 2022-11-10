@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.810.25
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "NavmeshProject", "NavmeshProject.mdproj", "{AD46D4C2-D535-47B8-9FCD-CF5CB46FABB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|Any CPU = Default|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD46D4C2-D535-47B8-9FCD-CF5CB46FABB6}.Default|Any CPU.ActiveCfg = Default|Any CPU
+		{AD46D4C2-D535-47B8-9FCD-CF5CB46FABB6}.Default|Any CPU.Build.0 = Default|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C83D445F-91DA-4BF2-B60F-C51FA864BBB9}
+	EndGlobalSection
+EndGlobal
