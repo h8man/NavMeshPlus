@@ -19,7 +19,7 @@ To use it in your project:
 
 1. Copy repo into your `Asset` folder (or install as a package).
 2. Create `Empty Object` in scene root.
-3. Add `NavMeshSurface` component to `Empty Object` and add `NavMeshCollecSources2d` component after.
+3. Add `NavMeshSurface` component to `Empty Object` and add `NavMeshCollectSources2d` component after.
 4. Click `Rotate Surface to XY` (to face surface toward standard 2d camera x-90;y0;z0)
 4. Add `NavMeshModifier` component to scene objects obstacles, override the area.
 5. In `NavMeshSurface` hit Bake.
