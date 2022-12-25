@@ -9,8 +9,8 @@ using UnityEngine.AI;
 namespace NavMeshComponents.Extensions
 {
     [ExecuteAlways]
-    [AddComponentMenu("Navigation/NavMeshCollectRootSources2d", 30)]
-    public class NavMeshCollectRootSources2d: NavMeshExtension
+    [AddComponentMenu("Navigation/NavMesh RootSources2d", 30)]
+    public class RootSources2d: NavMeshExtension
     {
         [SerializeField]
         private List<GameObject> _rootSources;
