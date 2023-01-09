@@ -1,9 +1,10 @@
-﻿using System;
+﻿using NavMeshPlus.Components;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace NavMeshComponents.Extensions
+namespace NavMeshPlus.Extensions
 {
     public abstract class NavMeshExtension: MonoBehaviour
     {

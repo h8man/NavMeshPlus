@@ -5,7 +5,7 @@ using UnityEngine.AI;
 //***********************************************************************************
 // Contributed by author @Lazy_Sloth from unity forum (https://forum.unity.com/)
 //***********************************************************************************
-namespace NavMeshComponents.Extensions
+namespace NavMeshPlus.Extensions
 {
     public class RotateAgentSmoothly: IAgentOverride
     {

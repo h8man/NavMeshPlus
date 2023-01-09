@@ -1,13 +1,10 @@
-﻿using System;
+﻿using NavMeshPlus.Components;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Tilemaps;
 
-namespace NavMeshComponents.Extensions
+namespace NavMeshPlus.Extensions
 {
     [ExecuteAlways]
     [AddComponentMenu("Navigation/NavMesh CollectSources2d", 30)]
@@ -83,7 +80,7 @@ namespace NavMeshComponents.Extensions
             builder.compressBounds = compressBounds;
             builder.overrideVector = overrideVector;
             builder.CollectGeometry = surface.useGeometry;
-            builder.CollectObjects = (CollectObjects2d)(int)surface.collectObjects;
+            builder.CollectObjects = (CollectObjects)(int)surface.collectObjects;
             builder.parent = surface.gameObject;
             builder.hideEditorLogs = surface.hideEditorLogs;
             builder.SetRoot(navNeshState.roots);

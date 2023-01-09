@@ -1,11 +1,13 @@
-using NavMeshComponents.Extensions;
+using NavMeshPlus.Extensions;
 using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.AI;
 #endif
 
-namespace UnityEngine.AI
+namespace NavMeshPlus.Components
 {
     public enum CollectObjects
     {

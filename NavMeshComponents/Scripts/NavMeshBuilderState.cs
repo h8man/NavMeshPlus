@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NavMeshComponents.Extensions
+namespace NavMeshPlus.Extensions
 {
     public class NavMeshBuilderState
     {

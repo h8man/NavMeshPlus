@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 
-namespace NavMeshComponents.Extensions
+namespace NavMeshPlus.Extensions
 {
     class AgentRotateSmooth2d: MonoBehaviour
     {

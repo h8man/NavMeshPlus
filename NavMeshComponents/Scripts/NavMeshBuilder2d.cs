@@ -1,15 +1,19 @@
-﻿using System;
+﻿using NavMeshPlus.Components;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
+using Object = UnityEngine.Object;
 
-namespace UnityEngine.AI
+namespace NavMeshPlus.Extensions
 {
     class NavMeshBuilder2dState
     {
         public Dictionary<Sprite, Mesh> map;
         public Dictionary<uint, Mesh> coliderMap;
-        public Action<Object, NavMeshBuildSource> lookupCallback;
+        public Action<UnityEngine.Object, NavMeshBuildSource> lookupCallback;
         public int defaultArea;
         public int layerMask;
         public int agentID;
@@ -18,7 +22,7 @@ namespace UnityEngine.AI
         public bool compressBounds;
         public Vector3 overrideVector;
         public NavMeshCollectGeometry CollectGeometry;
-        public CollectObjects2d CollectObjects;
+        public CollectObjects CollectObjects;
         public GameObject parent;
         public bool hideEditorLogs;
         
@@ -75,9 +79,9 @@ namespace UnityEngine.AI
         {
             switch (CollectObjects)
             {
-                case CollectObjects2d.Children: return new[] { parent };
-                case CollectObjects2d.Volume: 
-                case CollectObjects2d.All:
+                case CollectObjects.Children: return new[] { parent };
+                case CollectObjects.Volume: 
+                case CollectObjects.All:
                 default:
                 {
                     var list = new List<GameObject>();
@@ -169,7 +173,7 @@ namespace UnityEngine.AI
                 }
 
                 if (!builder.hideEditorLogs) Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
-                var box = BoxBoundSource(NavMeshSurface2d.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
+                var box = BoxBoundSource(NavMeshSurface.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
                 box.area = builder.defaultArea;
                 sources.Add(box);
             }
