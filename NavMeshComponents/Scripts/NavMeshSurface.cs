@@ -18,7 +18,7 @@ namespace NavMeshPlus.Components
 
     [ExecuteAlways]
     [DefaultExecutionOrder(-102)]
-    [AddComponentMenu("Navigation/NavMeshSurface", 30)]
+    [AddComponentMenu("Navigation/Navigation Surface", 30)]
     [HelpURL("https://github.com/Unity-Technologies/NavMeshComponents#documentation-draft")]
     public class NavMeshSurface : MonoBehaviour
     {

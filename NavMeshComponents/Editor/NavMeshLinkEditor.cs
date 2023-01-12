@@ -268,7 +268,7 @@ namespace NavMeshPlus.Editors.Components
             Handles.color = oldColor;
         }
 
-        [MenuItem("GameObject/AI/NavMesh Link", false, 2002)]
+        [MenuItem("GameObject/Navigation/NavMesh Link", false, 2002)]
         static public void CreateNavMeshLink(MenuCommand menuCommand)
         {
             var parent = menuCommand.context as GameObject;

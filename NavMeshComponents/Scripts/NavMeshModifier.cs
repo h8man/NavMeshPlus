@@ -4,7 +4,7 @@ using UnityEngine;
 namespace NavMeshPlus.Components
 {
     [ExecuteInEditMode]
-    [AddComponentMenu("Navigation/NavMeshModifier", 32)]
+    [AddComponentMenu("Navigation/Navigation Modifier", 32)]
     [HelpURL("https://github.com/Unity-Technologies/NavMeshComponents#documentation-draft")]
     public class NavMeshModifier : MonoBehaviour
     {

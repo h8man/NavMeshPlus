@@ -6,7 +6,7 @@ namespace NavMeshPlus.Components
 {
     [ExecuteInEditMode]
     [DefaultExecutionOrder(-101)]
-    [AddComponentMenu("Navigation/NavMeshLink", 33)]
+    [AddComponentMenu("Navigation/Navigation Link", 33)]
     [HelpURL("https://github.com/Unity-Technologies/NavMeshPlus#documentation-draft")]
     public class NavMeshLink : MonoBehaviour
     {
