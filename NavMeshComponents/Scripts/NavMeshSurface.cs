@@ -1,10 +1,10 @@
 using NavMeshPlus.Extensions;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEngine;
-using UnityEngine.AI;
 #endif
 
 namespace NavMeshPlus.Components
