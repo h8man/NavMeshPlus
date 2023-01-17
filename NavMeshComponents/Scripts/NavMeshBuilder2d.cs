@@ -141,8 +141,7 @@ namespace NavMeshPlus.Extensions
         {
             if (builder.CollectGeometry == NavMeshCollectGeometry.PhysicsColliders)
             {
-                var collider = modifier.GetComponent<Collider2D>();
-                if (collider != null)
+                foreach (var collider in modifier.GetComponents<Collider2D>())
                 {
                     CollectSources(sources, collider, area, builder);
                 }
