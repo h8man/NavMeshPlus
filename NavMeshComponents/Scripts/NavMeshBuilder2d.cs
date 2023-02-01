@@ -80,18 +80,21 @@ namespace NavMeshPlus.Extensions
             switch (CollectObjects)
             {
                 case CollectObjects.Children: return new[] { parent };
-                case CollectObjects.Volume: 
+                case CollectObjects.Volume:
                 case CollectObjects.All:
                 default:
-                {
-                    var list = new List<GameObject>();
-                    for (int i = 0; i < SceneManager.sceneCount; ++i)
                     {
-                        var s = SceneManager.GetSceneAt(i);
-                        s.GetRootGameObjects(list);
+                        var list = new List<GameObject>();
+                        var roots = new List<GameObject>();
+                        for (int i = 0; i < SceneManager.sceneCount; ++i)
+                        {
+                            var s = SceneManager.GetSceneAt(i);
+                            if (!s.isLoaded) continue;
+                            s.GetRootGameObjects(list);
+                            roots.AddRange(list);
+                        }
+                        return roots;
                     }
-                    return list;
-                }
             }
         }
     }
