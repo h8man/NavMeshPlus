@@ -30,6 +30,11 @@ namespace NavMeshPlus.Extensions
             _sourcesBounds = new Bounds();
             base.Awake();
         }
+        protected override void OnDestroy()
+        {
+            _state?.Dispose();
+            base.OnDestroy();
+        }
 
         public bool AddSource(GameObject gameObject, NavMeshBuildSource source)
         {
@@ -87,7 +92,8 @@ namespace NavMeshPlus.Extensions
         {
             _lookup.Clear();
             IsDirty = false;
-            _state = navMeshState.GetExtraState<NavMeshBuilder2dState>();
+            _state?.Dispose();
+            _state = navMeshState.GetExtraState<NavMeshBuilder2dState>(false);
             _state.lookupCallback = LookupCallback;
         }
 

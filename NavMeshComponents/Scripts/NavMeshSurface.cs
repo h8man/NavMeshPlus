@@ -166,7 +166,9 @@ namespace NavMeshPlus.Components
 
         public void BuildNavMesh()
         {
-            var sources = CollectSources();
+            using var builderState = new NavMeshBuilderState() { };
+
+            var sources = CollectSources(builderState);
 
             // Use unscaled bounds - this differs in behaviour from e.g. collider components.
             // But is similar to reflection probe - and since navmesh data has no scaling support - it is the right choice here.
@@ -175,7 +177,7 @@ namespace NavMeshPlus.Components
             {
                 sourcesBounds = CalculateWorldBounds(sources);
             }
-            var builderState = new NavMeshBuilderState() { worldBounds = sourcesBounds };
+            builderState.worldBounds = sourcesBounds;
             for (int i = 0; i < NevMeshExtensions.Count; ++i)
             {
                 NevMeshExtensions[i].PostCollectSources(this, sources, builderState);
@@ -214,7 +216,9 @@ namespace NavMeshPlus.Components
 
         public AsyncOperation UpdateNavMesh(NavMeshData data)
         {
-            var sources = CollectSources();
+            using var builderState = new NavMeshBuilderState() { };
+
+            var sources = CollectSources(builderState);
 
             // Use unscaled bounds - this differs in behaviour from e.g. collider components.
             // But is similar to reflection probe - and since navmesh data has no scaling support - it is the right choice here.
@@ -223,7 +227,7 @@ namespace NavMeshPlus.Components
             {
                 sourcesBounds = CalculateWorldBounds(sources);
             }
-            var builderState = new NavMeshBuilderState() { worldBounds = sourcesBounds };
+            builderState.worldBounds = sourcesBounds;
             for (int i = 0; i < NevMeshExtensions.Count; ++i)
             {
                 NevMeshExtensions[i].PostCollectSources(this, sources, builderState);
@@ -306,7 +310,7 @@ namespace NavMeshPlus.Components
             }
         }
 
-        List<NavMeshBuildSource> CollectSources()
+        List<NavMeshBuildSource> CollectSources(NavMeshBuilderState builderState)
         {
             var sources = new List<NavMeshBuildSource>();
             var markups = new List<NavMeshBuildMarkup>();
@@ -357,10 +361,9 @@ namespace NavMeshPlus.Components
                     UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
                         worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
-                var buildState = new NavMeshBuilderState();
                 for (int i = 0; i < NevMeshExtensions.Count; ++i)
                 {
-                    NevMeshExtensions[i].CollectSources(this, sources, buildState);
+                    NevMeshExtensions[i].CollectSources(this, sources, builderState);
                 }
             }
             else
@@ -380,10 +383,9 @@ namespace NavMeshPlus.Components
                     var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
                     NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
                 }
-                var buildState = new NavMeshBuilderState();
                 for (int i = 0; i < NevMeshExtensions.Count; ++i)
                 {
-                    NevMeshExtensions[i].CollectSources(this, sources, buildState);
+                    NevMeshExtensions[i].CollectSources(this, sources, builderState);
                 }
             }
 
