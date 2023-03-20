@@ -7,9 +7,12 @@ geometry, which allows characters to move intelligently around the game world.
 ![NavMesh](https://github.com/h8man/NavMeshPlus/wiki/images/Tittle-01.png)
 
 # Unity 2D Pathfinding 
-#### Wiki [[here]](https://github.com/h8man/NavMeshPlus/wiki) How To [[here]](https://github.com/h8man/NavMeshPlus/wiki/HOW-TO). Demo [[github]](https://github.com/h8man/RedHotSweetPepper ). Discuss [[unityforum]](https://forum.unity.com/threads/2d-navmesh-pathfinding.503596/ ).
-
 This repo is fork of Unity NavMeshComponents enhanced with Extensions system for 2d Pathfinding and more. [[link]](https://github.com/Unity-Technologies/NavMeshComponents)
+
+#### Wiki [[here]](https://github.com/h8man/NavMeshPlus/wiki)
+#### How To [[here]](https://github.com/h8man/NavMeshPlus/wiki/HOW-TO).
+#### Demo [[github]](https://github.com/h8man/RedHotSweetPepper ).
+#### Discuss [[unityforum]](https://forum.unity.com/threads/2d-navmesh-pathfinding.503596/ ).
 
 # 2D NavMesh
 
