@@ -44,8 +44,14 @@ namespace NavMeshPlus.Editors.Extensions
             using (new EditorGUI.DisabledScope(Application.isPlaying))
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Space(EditorGUIUtility.labelWidth);
-                if (GUILayout.Button("Rotate Surface to XY"))
+                if (GUILayout.Button(new GUIContent("Rotate Surface to XY", "Rotates Surface along XY plane to face toward standard 2d camera.")))
+                {
+                    foreach (CollectSources2d item in targets)
+                    {
+                        item.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
+                    }
+                }
+                if (GUILayout.Button(new GUIContent("Tilt Surface", "If your agent get stuck on vertical movement it may help to solve the issue. This will tilt Surface to -89.98. It may impact baking and navigation.")))
                 {
                     foreach (CollectSources2d item in targets)
                     {
