@@ -11,8 +11,8 @@ namespace NavMeshPlus.Extensions
 {
     class NavMeshBuilder2dState: IDisposable
     {
-        public Dictionary<Sprite, Mesh> map;
-        public Dictionary<uint, Mesh> coliderMap;
+        public Dictionary<Sprite, Mesh> spriteMeshMap;
+        public Dictionary<uint, Mesh> coliderMeshMap;
         public Action<UnityEngine.Object, NavMeshBuildSource> lookupCallback;
         public int defaultArea;
         public int layerMask;
@@ -33,23 +33,23 @@ namespace NavMeshPlus.Extensions
 
         public NavMeshBuilder2dState()
         {
-            map = new Dictionary<Sprite, Mesh>();
-            coliderMap = new Dictionary<uint, Mesh>();
+            spriteMeshMap = new Dictionary<Sprite, Mesh>();
+            coliderMeshMap = new Dictionary<uint, Mesh>();
             _root = null;
         }
 
         public Mesh GetMesh(Sprite sprite)
         {
             Mesh mesh;
-            if (map.ContainsKey(sprite))
+            if (spriteMeshMap.ContainsKey(sprite))
             {
-                mesh = map[sprite];
+                mesh = spriteMeshMap[sprite];
             }
             else
             {
                 mesh = new Mesh();
                 NavMeshBuilder2d.sprite2mesh(sprite, mesh);
-                map.Add(sprite, mesh);
+                spriteMeshMap.Add(sprite, mesh);
             }
             return mesh;
         }
@@ -59,14 +59,14 @@ namespace NavMeshPlus.Extensions
 #if UNITY_2019_3_OR_NEWER
             Mesh mesh;
             uint hash = collider.GetShapeHash();
-            if (coliderMap.ContainsKey(hash))
+            if (coliderMeshMap.ContainsKey(hash))
             {
-                mesh = coliderMap[hash];
+                mesh = coliderMeshMap[hash];
             }
             else
             {
                 mesh = collider.CreateMesh(false, false);
-                coliderMap.Add(hash, mesh);
+                coliderMeshMap.Add(hash, mesh);
             }
             return mesh;
 #else
@@ -110,13 +110,21 @@ namespace NavMeshPlus.Extensions
             if (disposing)
             {
                 // TODO: dispose managed state (managed objects).
-                foreach (var item in map)
+                foreach (var item in spriteMeshMap)
                 {
+#if UNITY_EDITOR
+                    Object.DestroyImmediate(item.Value);
+#else              
                     Object.Destroy(item.Value);
+#endif
                 }
-                foreach (var item in coliderMap)
+                foreach (var item in coliderMeshMap)
                 {
+#if UNITY_EDITOR
+                    Object.DestroyImmediate(item.Value);
+#else
                     Object.Destroy(item.Value);
+#endif
                 }
             }
 
