@@ -112,12 +112,22 @@ namespace NavMeshPlus.Extensions
                 // TODO: dispose managed state (managed objects).
                 foreach (var item in map)
                 {
+#if UNITY_EDITOR
+                    Object.DestroyImmediate(item.Value);
+#else 
                     Object.Destroy(item.Value);
+#endif
                 }
                 foreach (var item in coliderMap)
                 {
+#if UNITY_EDITOR
+                    Object.DestroyImmediate(item.Value);
+#else 
                     Object.Destroy(item.Value);
+#endif
                 }
+                map.Clear();
+                coliderMap.Clear();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
