@@ -126,8 +126,8 @@ namespace NavMeshPlus.Extensions
                     Object.Destroy(item.Value);
 #endif
                 }
-                map.Clear();
-                coliderMap.Clear();
+                spriteMeshMap.Clear();
+                coliderMeshMap.Clear();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
