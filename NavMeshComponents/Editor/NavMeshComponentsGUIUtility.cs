@@ -36,11 +36,11 @@ namespace NavMeshPlus.Editors.Components
 
             EditorGUI.EndProperty();
         }
-
-        public static void AgentTypePopup(string labelName, SerializedProperty agentTypeID)
+        
+        public static string[] GetAgentTypeOptionsSelection(SerializedProperty agentTypeID, out int index)
         {
-            var index = -1;
-            var count = NavMesh.GetSettingsCount();
+            index = -1;
+            int count = NavMesh.GetSettingsCount();
             var agentTypeNames = new string[count + 2];
             for (var i = 0; i < count; i++)
             {
@@ -52,6 +52,27 @@ namespace NavMeshPlus.Editors.Components
             }
             agentTypeNames[count] = "";
             agentTypeNames[count + 1] = "Open Agent Settings...";
+
+            return agentTypeNames;
+        }
+
+        public static void HandleAgentTypeSelection(SerializedProperty agentTypeID, int selectionIdx)
+        {
+            int count = NavMesh.GetSettingsCount();
+            if (selectionIdx >= 0 && selectionIdx < count)
+            {
+                var id = NavMesh.GetSettingsByIndex(selectionIdx).agentTypeID;
+                agentTypeID.intValue = id;
+            }
+            else if (selectionIdx == count + 1)
+            {
+                NavMeshEditorHelpers.OpenAgentSettings(-1);
+            }
+        }
+
+        public static void AgentTypePopup(string labelName, SerializedProperty agentTypeID)
+        {
+            var agentTypeNames = GetAgentTypeOptionsSelection(agentTypeID, out int index);
 
             bool validAgentType = index != -1;
             if (!validAgentType)
@@ -66,15 +87,7 @@ namespace NavMeshPlus.Editors.Components
             index = EditorGUI.Popup(rect, labelName, index, agentTypeNames);
             if (EditorGUI.EndChangeCheck())
             {
-                if (index >= 0 && index < count)
-                {
-                    var id = NavMesh.GetSettingsByIndex(index).agentTypeID;
-                    agentTypeID.intValue = id;
-                }
-                else if (index == count + 1)
-                {
-                    NavMeshEditorHelpers.OpenAgentSettings(-1);
-                }
+                HandleAgentTypeSelection(agentTypeID, index);
             }
 
             EditorGUI.EndProperty();

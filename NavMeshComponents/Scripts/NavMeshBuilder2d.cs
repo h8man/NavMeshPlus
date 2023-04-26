@@ -112,11 +112,11 @@ namespace NavMeshPlus.Extensions
                 // TODO: dispose managed state (managed objects).
                 foreach (var item in map)
                 {
-                    Object.Destroy(item.Value);
+                    Object.DestroyImmediate(item.Value);
                 }
                 foreach (var item in coliderMap)
                 {
-                    Object.Destroy(item.Value);
+                    Object.DestroyImmediate(item.Value);
                 }
             }
 
