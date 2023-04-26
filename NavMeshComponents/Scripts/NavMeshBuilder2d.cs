@@ -336,7 +336,11 @@ namespace NavMeshPlus.Extensions
             }
             else //default to box
             {
-                /// ADD TILE CODE HERE ///
+                if (tilemap.GetTile(vec3int) is NavTile navTile && navTile.areaType.overrideArea)
+                {
+                    src.area = navTile.areaType.areaID;
+                }
+
                 src.transform = GetCellTransformMatrix(tilemap, builder.overrideVector, vec3int);
                 src.shape = NavMeshBuildSourceShape.Box;
                 src.size = size;

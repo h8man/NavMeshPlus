@@ -7,6 +7,7 @@ namespace NavMeshPlus.Extensions
     [System.Serializable]
     public struct NavMeshAreaType
     {
+        public bool overrideArea;
         public int areaID;
     }
 }

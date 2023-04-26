@@ -7,18 +7,35 @@ namespace NavMeshPlus.Editors.Components
 {
     public static class NavMeshComponentsGUIUtility
     {
-        public static void AreaPopup(string labelName, SerializedProperty areaProperty)
+        public static string[] GetAreaTypeOptionsSelection(SerializedProperty areaIDProperty, out int areaIndex)
         {
-            var areaIndex = -1;
+            areaIndex = -1;
             var areaNames = GameObjectUtility.GetNavMeshAreaNames();
             for (var i = 0; i < areaNames.Length; i++)
             {
                 var areaValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[i]);
-                if (areaValue == areaProperty.intValue)
+                if (areaValue == areaIDProperty.intValue)
                     areaIndex = i;
             }
             ArrayUtility.Add(ref areaNames, "");
             ArrayUtility.Add(ref areaNames, "Open Area Settings...");
+
+            return areaNames;
+        }
+
+        public static void HandleAreaTypeSelection(SerializedProperty areaIDProperty, int areaIndex)
+        {
+            var areaNames = GameObjectUtility.GetNavMeshAreaNames();
+            int count = areaNames.Length;
+            if (areaIndex >= 0 && areaIndex < count)
+                areaIDProperty.intValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[areaIndex]);
+            else if (areaIndex == count + 1)
+                NavMeshEditorHelpers.OpenAreaSettings();
+        }
+
+        public static void AreaPopup(string labelName, SerializedProperty areaProperty)
+        {
+            var areaNames = GetAreaTypeOptionsSelection(areaProperty, out int areaIndex);
 
             var rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
             EditorGUI.BeginProperty(rect, GUIContent.none, areaProperty);
@@ -28,10 +45,7 @@ namespace NavMeshPlus.Editors.Components
 
             if (EditorGUI.EndChangeCheck())
             {
-                if (areaIndex >= 0 && areaIndex < areaNames.Length - 2)
-                    areaProperty.intValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[areaIndex]);
-                else if (areaIndex == areaNames.Length - 1)
-                    NavMeshEditorHelpers.OpenAreaSettings();
+                HandleAreaTypeSelection(areaProperty, areaIndex);
             }
 
             EditorGUI.EndProperty();
