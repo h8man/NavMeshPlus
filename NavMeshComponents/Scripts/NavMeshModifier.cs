@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace NavMeshPlus.Components
 {
-    [ExecuteInEditMode]
+    [UnityEngine.ExecuteInEditMode]
     [AddComponentMenu("Navigation/Navigation Modifier", 32)]
     [HelpURL("https://github.com/Unity-Technologies/NavMeshComponents#documentation-draft")]
     public class NavMeshModifier : MonoBehaviour
@@ -32,13 +32,13 @@ namespace NavMeshPlus.Components
             get { return s_NavMeshModifiers; }
         }
 
-        void OnEnable()
+        public void OnEnable()
         {
             if (!s_NavMeshModifiers.Contains(this))
                 s_NavMeshModifiers.Add(this);
         }
 
-        void OnDisable()
+        public void OnDisable()
         {
             s_NavMeshModifiers.Remove(this);
         }
