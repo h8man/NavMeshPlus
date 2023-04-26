@@ -336,6 +336,7 @@ namespace NavMeshPlus.Extensions
             }
             else //default to box
             {
+                /// ADD TILE CODE HERE ///
                 src.transform = GetCellTransformMatrix(tilemap, builder.overrideVector, vec3int);
                 src.shape = NavMeshBuildSourceShape.Box;
                 src.size = size;
