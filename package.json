@@ -8,6 +8,7 @@
     "keywords": ["2d"],
     "category": "2D",
     "dependencies": {
+	"com.unity.2d.tilemap": "1.0.0"
     }
 
 }
