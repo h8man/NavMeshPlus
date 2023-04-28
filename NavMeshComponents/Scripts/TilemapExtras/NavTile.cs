@@ -11,7 +11,8 @@ namespace NavMeshPlus.Extensions
     [System.Serializable]
     public class NavTile : Tile
     {
-        public NavMeshAreaType areaType;
+        public bool overrideArea;
+        [NavMeshArea] public int areaID;
 
         /// <summary>Creates a Tile with defaults based on the Tile preset and a Sprite set</summary>
         /// <param name="sprite">A Sprite to set the Tile with</param>
@@ -23,7 +24,8 @@ namespace NavMeshPlus.Extensions
             tile.name = sprite.name;
             tile.sprite = sprite;
             tile.color = Color.white;
-            tile.areaType = new NavMeshAreaType();
+            tile.overrideArea = false;
+            tile.areaID = 0;
 
             return tile;
         }

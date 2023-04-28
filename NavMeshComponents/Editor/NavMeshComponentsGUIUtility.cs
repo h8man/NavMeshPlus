@@ -7,37 +7,19 @@ namespace NavMeshPlus.Editors.Components
 {
     public static class NavMeshComponentsGUIUtility
     {
-        public static string[] GetAreaTypeOptionsSelection(SerializedProperty areaIDProperty, out int areaIndex)
+        public static void AreaPopup(Rect rect, string labelName, SerializedProperty areaProperty)
         {
-            areaIndex = -1;
+            var areaIndex = -1;
             var areaNames = GameObjectUtility.GetNavMeshAreaNames();
             for (var i = 0; i < areaNames.Length; i++)
             {
                 var areaValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[i]);
-                if (areaValue == areaIDProperty.intValue)
+                if (areaValue == areaProperty.intValue)
                     areaIndex = i;
             }
             ArrayUtility.Add(ref areaNames, "");
             ArrayUtility.Add(ref areaNames, "Open Area Settings...");
 
-            return areaNames;
-        }
-
-        public static void HandleAreaTypeSelection(SerializedProperty areaIDProperty, int areaIndex)
-        {
-            var areaNames = GameObjectUtility.GetNavMeshAreaNames();
-            int count = areaNames.Length;
-            if (areaIndex >= 0 && areaIndex < count)
-                areaIDProperty.intValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[areaIndex]);
-            else if (areaIndex == count + 1)
-                NavMeshEditorHelpers.OpenAreaSettings();
-        }
-
-        public static void AreaPopup(string labelName, SerializedProperty areaProperty)
-        {
-            var areaNames = GetAreaTypeOptionsSelection(areaProperty, out int areaIndex);
-
-            var rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
             EditorGUI.BeginProperty(rect, GUIContent.none, areaProperty);
 
             EditorGUI.BeginChangeCheck();
@@ -45,16 +27,19 @@ namespace NavMeshPlus.Editors.Components
 
             if (EditorGUI.EndChangeCheck())
             {
-                HandleAreaTypeSelection(areaProperty, areaIndex);
+                if (areaIndex >= 0 && areaIndex < areaNames.Length - 2)
+                    areaProperty.intValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[areaIndex]);
+                else if (areaIndex == areaNames.Length - 1)
+                    NavMeshEditorHelpers.OpenAreaSettings();
             }
 
             EditorGUI.EndProperty();
         }
-        
-        public static string[] GetAgentTypeOptionsSelection(SerializedProperty agentTypeID, out int index)
+
+        public static void AgentTypePopup(Rect rect, string labelName, SerializedProperty agentTypeID)
         {
-            index = -1;
-            int count = NavMesh.GetSettingsCount();
+            var index = -1;
+            var count = NavMesh.GetSettingsCount();
             var agentTypeNames = new string[count + 2];
             for (var i = 0; i < count; i++)
             {
@@ -67,41 +52,32 @@ namespace NavMeshPlus.Editors.Components
             agentTypeNames[count] = "";
             agentTypeNames[count + 1] = "Open Agent Settings...";
 
-            return agentTypeNames;
-        }
-
-        public static void HandleAgentTypeSelection(SerializedProperty agentTypeID, int selectionIdx)
-        {
-            int count = NavMesh.GetSettingsCount();
-            if (selectionIdx >= 0 && selectionIdx < count)
-            {
-                var id = NavMesh.GetSettingsByIndex(selectionIdx).agentTypeID;
-                agentTypeID.intValue = id;
-            }
-            else if (selectionIdx == count + 1)
-            {
-                NavMeshEditorHelpers.OpenAgentSettings(-1);
-            }
-        }
-
-        public static void AgentTypePopup(string labelName, SerializedProperty agentTypeID)
-        {
-            var agentTypeNames = GetAgentTypeOptionsSelection(agentTypeID, out int index);
-
             bool validAgentType = index != -1;
             if (!validAgentType)
             {
-                EditorGUILayout.HelpBox("Agent Type invalid.", MessageType.Warning);
+                Rect warningRect = rect;
+                warningRect.width *= .25f;
+                warningRect.x += warningRect.width * 3;
+                EditorGUI.HelpBox(warningRect, "Agent Type invalid.", MessageType.Warning);
+
+                rect.width *= .75f;
             }
 
-            var rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
             EditorGUI.BeginProperty(rect, GUIContent.none, agentTypeID);
 
             EditorGUI.BeginChangeCheck();
             index = EditorGUI.Popup(rect, labelName, index, agentTypeNames);
             if (EditorGUI.EndChangeCheck())
             {
-                HandleAgentTypeSelection(agentTypeID, index);
+                if (index >= 0 && index < count)
+                {
+                    var id = NavMesh.GetSettingsByIndex(index).agentTypeID;
+                    agentTypeID.intValue = id;
+                }
+                else if (index == count + 1)
+                {
+                    NavMeshEditorHelpers.OpenAgentSettings(-1);
+                }
             }
 
             EditorGUI.EndProperty();

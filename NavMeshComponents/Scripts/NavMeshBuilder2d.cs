@@ -346,9 +346,9 @@ namespace NavMeshPlus.Extensions
             }
             else //default to box
             {
-                if (tilemap.GetTile(vec3int) is NavTile navTile && navTile.areaType.overrideArea)
+                if (tilemap.GetTile(vec3int) is NavTile navTile && navTile.overrideArea)
                 {
-                    src.area = navTile.areaType.areaID;
+                    src.area = navTile.areaID;
                 }
 
                 src.transform = GetCellTransformMatrix(tilemap, builder.overrideVector, vec3int);

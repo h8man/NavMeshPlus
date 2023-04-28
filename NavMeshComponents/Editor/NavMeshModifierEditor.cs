@@ -40,7 +40,8 @@ namespace NavMeshPlus.Editors.Components
             if (m_OverrideArea.boolValue)
             {
                 EditorGUI.indentLevel++;
-                NavMeshComponentsGUIUtility.AreaPopup("Area Type", m_Area);
+                var rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
+                NavMeshComponentsGUIUtility.AreaPopup(rect, "Area Type", m_Area);
                 EditorGUI.indentLevel--;
             }
 

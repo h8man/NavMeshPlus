@@ -1,13 +1,12 @@
+using UnityEngine;
+
 //***********************************************************************************
 // Contributed by author jl-randazzo github.com/jl-randazzo
 //***********************************************************************************
-
 namespace NavMeshPlus.Extensions
 {
     [System.Serializable]
-    public struct NavMeshAreaType
+    public class NavMeshAgentAttribute : PropertyAttribute
     {
-        public bool overrideArea;
-        public int areaID;
     }
 }
