@@ -1,7 +1,9 @@
 {
     "name": "NavMeshPlus",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "Unity.2D.Tilemap.Editor"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
