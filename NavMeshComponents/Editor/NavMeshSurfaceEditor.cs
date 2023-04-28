@@ -108,9 +108,7 @@ namespace NavMeshPlus.Editors.Components
                 NavMeshEditorHelpers.DrawAgentDiagram(agentDiagramRect, bs.agentRadius, bs.agentHeight, bs.agentClimb, bs.agentSlope);
             }
 
-            var rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
-            NavMeshComponentsGUIUtility.AgentTypePopup(rect, "Agent Type", m_AgentTypeID);
-
+            EditorGUILayout.PropertyField(m_AgentTypeID);
             EditorGUILayout.Space();
 
             EditorGUILayout.PropertyField(m_CollectObjects);
@@ -141,8 +139,7 @@ namespace NavMeshPlus.Editors.Components
             {
                 EditorGUI.indentLevel++;
 
-                var areaRect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
-                NavMeshComponentsGUIUtility.AreaPopup(areaRect, "Default Area", m_DefaultArea);
+                EditorGUILayout.PropertyField(m_DefaultArea);
 
                 // Override voxel size.
                 EditorGUILayout.PropertyField(m_OverrideVoxelSize);

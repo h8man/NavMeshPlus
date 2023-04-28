@@ -6,6 +6,7 @@ using UnityEngine;
 namespace NavMeshPlus.Extensions
 {
     [System.Serializable]
+    // See also NavMeshAreaAttributePropertyDrawer
     public class NavMeshAreaAttribute : PropertyAttribute
     {
     }

@@ -16,6 +16,6 @@ namespace NavMeshPlus.Editors.Extensions
             NavMeshComponentsGUIUtility.AgentTypePopup(position, label.text, property);
         }
 
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => 20;
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => NavMeshComponentsGUIUtility.IsAgentSelectionValid(property) ? 20 : 40;
     }
 }

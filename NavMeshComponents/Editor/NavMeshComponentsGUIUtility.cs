@@ -36,6 +36,19 @@ namespace NavMeshPlus.Editors.Components
             EditorGUI.EndProperty();
         }
 
+        public static bool IsAgentSelectionValid(SerializedProperty agentTypeID)
+        {
+            var count = NavMesh.GetSettingsCount();
+            for (var i = 0; i < count; i++)
+            {
+                var id = NavMesh.GetSettingsByIndex(i).agentTypeID;
+                var name = NavMesh.GetSettingsNameFromID(id);
+                if (id == agentTypeID.intValue)
+                    return true;
+            }
+            return false;
+        }
+
         public static void AgentTypePopup(Rect rect, string labelName, SerializedProperty agentTypeID)
         {
             var index = -1;
@@ -56,11 +69,11 @@ namespace NavMeshPlus.Editors.Components
             if (!validAgentType)
             {
                 Rect warningRect = rect;
-                warningRect.width *= .25f;
-                warningRect.x += warningRect.width * 3;
+                warningRect.height *= .5f;
+                warningRect.y += warningRect.height;
                 EditorGUI.HelpBox(warningRect, "Agent Type invalid.", MessageType.Warning);
 
-                rect.width *= .75f;
+                rect.height *= .5f;
             }
 
             EditorGUI.BeginProperty(rect, GUIContent.none, agentTypeID);

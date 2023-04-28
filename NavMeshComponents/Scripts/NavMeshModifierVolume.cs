@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using NavMeshPlus.Extensions;
 
 namespace NavMeshPlus.Components
 {
@@ -16,7 +17,7 @@ namespace NavMeshPlus.Components
         Vector3 m_Center = new Vector3(0, 1.0f, 0);
         public Vector3 center { get { return m_Center; } set { m_Center = value; } }
 
-        [SerializeField]
+        [SerializeField, NavMeshArea]
         int m_Area;
         public int area { get { return m_Area; } set { m_Area = value; } }
 

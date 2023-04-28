@@ -22,7 +22,7 @@ namespace NavMeshPlus.Components
     [HelpURL("https://github.com/Unity-Technologies/NavMeshComponents#documentation-draft")]
     public class NavMeshSurface : MonoBehaviour
     {
-        [SerializeField]
+        [SerializeField, NavMeshAgent]
         int m_AgentTypeID;
         public int agentTypeID { get { return m_AgentTypeID; } set { m_AgentTypeID = value; } }
 
@@ -46,7 +46,7 @@ namespace NavMeshPlus.Components
         NavMeshCollectGeometry m_UseGeometry = NavMeshCollectGeometry.RenderMeshes;
         public NavMeshCollectGeometry useGeometry { get { return m_UseGeometry; } set { m_UseGeometry = value; } }
 
-        [SerializeField]
+        [SerializeField, NavMeshArea]
         int m_DefaultArea;
         public int defaultArea { get { return m_DefaultArea; } set { m_DefaultArea = value; } }
 

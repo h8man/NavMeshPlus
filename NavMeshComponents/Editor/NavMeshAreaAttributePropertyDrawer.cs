@@ -16,6 +16,6 @@ namespace NavMeshPlus.Editors.Extensions
             NavMeshComponentsGUIUtility.AreaPopup(position, label.text, property);
         }
 
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => 50;
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => 20;
     }
 }

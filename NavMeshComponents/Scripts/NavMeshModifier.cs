@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using NavMeshPlus.Extensions;
 
 namespace NavMeshPlus.Components
 {
@@ -12,7 +13,7 @@ namespace NavMeshPlus.Components
         bool m_OverrideArea;
         public bool overrideArea { get { return m_OverrideArea; } set { m_OverrideArea = value; } }
 
-        [SerializeField]
+        [SerializeField, NavMeshArea]
         int m_Area;
         public int area { get { return m_Area; } set { m_Area = value; } }
 
