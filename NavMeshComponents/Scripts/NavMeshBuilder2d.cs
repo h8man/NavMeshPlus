@@ -230,7 +230,7 @@ namespace NavMeshPlus.Extensions
 
         public static void CollectSources(List<NavMeshBuildSource> sources, SpriteRenderer spriteRenderer, int area, NavMeshBuilder2dState builder)
         {
-            if (spriteRenderer == null)
+            if (spriteRenderer == null || spriteRenderer.sprite == null)
             {
                 return;
             }
