@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEditor.AI;
 using UnityEngine.AI;
 using UnityEngine.Tilemaps;
@@ -26,11 +27,18 @@ namespace NavMeshPlus.Editors.Components
 
         public override void OnInspectorGUI()
         {
+            NavMeshModifierTilemap modifierTilemap = target as NavMeshModifierTilemap;
+
             serializedObject.Update();
             EditorGUILayout.PropertyField(m_TileModifiers);
+
+            if (modifierTilemap.tileModifiers.Count() != modifierTilemap.tileModifiers.Distinct(NavMeshModifierTilemap.TileModifierComparator).Count())
+            {
+                EditorGUILayout.HelpBox("There are duplicate Tile entries in the tilemap modifiers! Only the first will be used.", MessageType.Warning);
+            }
+
             EditorGUILayout.Space();
 
-            NavMeshModifierTilemap modifierTilemap = target as NavMeshModifierTilemap;
             Tilemap tilemap = modifierTilemap.GetComponent<Tilemap>();
             if (tilemap)
             {
@@ -44,13 +52,15 @@ namespace NavMeshPlus.Editors.Components
                 EditorGUILayout.HelpBox("Missing required component 'Tilemap'", MessageType.Error);
             }
 
-
-            serializedObject.ApplyModifiedProperties();
+            if (serializedObject.ApplyModifiedProperties())
+            {
+                modifierTilemap.CacheModifiers();
+            }
         }
 
         private void AddUsedTiles(Tilemap tilemap, NavMeshModifierTilemap modifierTilemap)
         {
-            Dictionary<TileBase, NavMeshModifierTilemap.TileModifier> tileModifiers = modifierTilemap.tileModifiers.Where(elem => elem.tile != null).ToDictionary(val => val.tile);
+            Dictionary<TileBase, NavMeshModifierTilemap.TileModifier> tileModifiers = modifierTilemap.GetModifierMap();
 
             BoundsInt bounds = tilemap.cellBounds;
             for (int i = bounds.xMin; i <= bounds.xMax; i++)
@@ -59,7 +69,6 @@ namespace NavMeshPlus.Editors.Components
                 {
                     for (int k = bounds.zMin; k <= bounds.zMax; k++)
                     {
-
                         if (tilemap.GetTile(new Vector3Int(i, j, k)) is TileBase tileBase)
                         {
                             if (!tileModifiers.ContainsKey(tileBase))

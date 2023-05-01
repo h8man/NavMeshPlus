@@ -3,7 +3,6 @@ using System.Linq;
 using UnityEngine;
 using NavMeshPlus.Extensions;
 using UnityEngine.Tilemaps;
-using UnityEngine.AI;
 
 //***********************************************************************************
 // Contributed by author jl-randazzo github.com/jl-randazzo
@@ -15,8 +14,11 @@ namespace NavMeshPlus.Components
     [RequireComponent(typeof(Tilemap))]
     [RequireComponent(typeof(NavMeshModifier))]
     [DisallowMultipleComponent]
+    [ExecuteInEditMode]
     public class NavMeshModifierTilemap : MonoBehaviour
     {
+        public static readonly MatchingTileComparator TileModifierComparator = new MatchingTileComparator();
+
         [System.Serializable]
         public struct TileModifier
         {
@@ -25,31 +27,42 @@ namespace NavMeshPlus.Components
             [NavMeshArea] public int area;
         }
 
+        public class MatchingTileComparator : IEqualityComparer<TileModifier>
+        {
+            public bool Equals(TileModifier a, TileModifier b) => a.tile == b.tile;
+            public int GetHashCode(TileModifier tileModifier) => tileModifier.GetHashCode();
+        }
+
         [SerializeField]
         List<TileModifier> m_TileModifiers = new List<TileModifier>();
-        public IEnumerable<TileModifier> tileModifiers => m_TileModifiers;
 
         private Dictionary<TileBase, TileModifier> m_ModifierMap;
 
-        public virtual void PreModifySources()
+        public Dictionary<TileBase, TileModifier> GetModifierMap() => m_TileModifiers.Where(mod => mod.tile != null).Distinct(TileModifierComparator).ToDictionary(mod => mod.tile);
+
+        void OnEnable()
         {
-            m_ModifierMap = tileModifiers.Where(mod => mod.tile != null).ToDictionary(mod => mod.tile);
+            CacheModifiers();
         }
 
-        public virtual void ModifyBuildSource(Vector3Int coords, Tilemap tilemap, ref NavMeshBuildSource src)
+        public void CacheModifiers()
+        {
+            m_ModifierMap = GetModifierMap();
+        }
+
+#if UNITY_EDITOR
+        public IEnumerable<TileModifier> tileModifiers => m_TileModifiers;
+
+#endif // UNITY_EDITOR
+
+        public virtual bool TryGetTileModifier(Vector3Int coords, Tilemap tilemap, out TileModifier modifier)
         {
             if (tilemap.GetTile(coords) is TileBase tileBase)
             {
-                if (m_ModifierMap.TryGetValue(tileBase, out TileModifier modifier))
-                {
-                    src.area = modifier.overrideArea ? modifier.area : src.area;
-                }
+                return m_ModifierMap.TryGetValue(tileBase, out modifier);
             }
-        }
-
-        public virtual void PostModifySources()
-        {
-            m_ModifierMap = null;
+            modifier = new TileModifier();
+            return false;
         }
     }
 }
