@@ -7,8 +7,6 @@
     "description": "NavMesh building components provide you with ability to create navigation meshes that are generated automatically from your Scene geometry, which allows characters to move intelligently around the game world.",
     "keywords": ["2d"],
     "category": "2D",
-    "dependencies": {
-	"com.unity.2d.tilemap": "1.0.0"
-    }
+    "dependencies": { }
 
 }

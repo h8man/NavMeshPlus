@@ -211,7 +211,7 @@ namespace NavMeshPlus.Extensions
             }
         }
 
-        private static void AddDefaultWalkableTilemap(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder, NavMeshModifier modifier)
+        private static void AddDefaultWalkableTilemap(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder, Component modifier)
         {
             var tilemap = modifier.GetComponent<Tilemap>();
             if (tilemap != null)
@@ -290,14 +290,14 @@ namespace NavMeshPlus.Extensions
         {
             var bound = tilemap.cellBounds;
 
+            var modifierTilemap = tilemap.GetComponent<NavMeshModifierTilemap>();
+            modifierTilemap?.PreModifySources();
+
             var vec3int = new Vector3Int(0, 0, 0);
 
             var size = new Vector3(tilemap.layoutGrid.cellSize.x, tilemap.layoutGrid.cellSize.y, 0);
             Mesh sharedMesh = null;
             Quaternion rot = default;
-
-            var src = new NavMeshBuildSource();
-            src.area = area;
 
             if (builder.useMeshPrefab != null)
             {
@@ -309,6 +309,9 @@ namespace NavMeshPlus.Extensions
             {
                 for (int j = bound.yMin; j < bound.yMax; j++)
                 {
+                    var src = new NavMeshBuildSource();
+                    src.area = area;
+
                     vec3int.x = i;
                     vec3int.y = j;
                     if (!tilemap.HasTile(vec3int))
@@ -317,11 +320,14 @@ namespace NavMeshPlus.Extensions
                     }
 
                     CollectTile(tilemap, builder, vec3int, size, sharedMesh, rot, ref src);
+                    modifierTilemap?.ModifyBuildSource(vec3int, tilemap, ref src);
                     sources.Add(src);
 
                     builder.lookupCallback?.Invoke(tilemap.GetInstantiatedObject(vec3int), src);
                 }
             }
+
+            modifierTilemap?.PostModifySources();
         }
 
         private static void CollectTile(Tilemap tilemap, NavMeshBuilder2dState builder, Vector3Int vec3int, Vector3 size, Mesh sharedMesh, Quaternion rot, ref NavMeshBuildSource src)
@@ -346,11 +352,6 @@ namespace NavMeshPlus.Extensions
             }
             else //default to box
             {
-                if (tilemap.GetTile(vec3int) is NavTile navTile && navTile.overrideArea)
-                {
-                    src.area = navTile.areaID;
-                }
-
                 src.transform = GetCellTransformMatrix(tilemap, builder.overrideVector, vec3int);
                 src.shape = NavMeshBuildSourceShape.Box;
                 src.size = size;

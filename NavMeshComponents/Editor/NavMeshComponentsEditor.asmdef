@@ -1,8 +1,7 @@
 {
     "name": "NavMeshPlusEditor",
     "references": [
-        "NavMeshPlus",
-        "Unity.2D.Tilemap.Editor"
+        "NavMeshPlus"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [
