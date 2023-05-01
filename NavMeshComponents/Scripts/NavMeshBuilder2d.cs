@@ -211,7 +211,7 @@ namespace NavMeshPlus.Extensions
             }
         }
 
-        private static void AddDefaultWalkableTilemap(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder, Component modifier)
+        private static void AddDefaultWalkableTilemap(List<NavMeshBuildSource> sources, NavMeshBuilder2dState builder, NavMeshModifier modifier)
         {
             var tilemap = modifier.GetComponent<Tilemap>();
             if (tilemap != null)

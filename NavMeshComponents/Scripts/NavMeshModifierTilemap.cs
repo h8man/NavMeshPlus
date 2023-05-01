@@ -14,6 +14,7 @@ namespace NavMeshPlus.Components
     [HelpURL("https://github.com/Unity-Technologies/NavMeshComponents#documentation-draft")]
     [RequireComponent(typeof(Tilemap))]
     [RequireComponent(typeof(NavMeshModifier))]
+    [DisallowMultipleComponent]
     public class NavMeshModifierTilemap : MonoBehaviour
     {
         [System.Serializable]
