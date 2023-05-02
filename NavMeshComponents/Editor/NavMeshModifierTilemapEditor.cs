@@ -32,7 +32,7 @@ namespace NavMeshPlus.Editors.Components
             serializedObject.Update();
             EditorGUILayout.PropertyField(m_TileModifiers);
 
-            if (modifierTilemap.tileModifiers.Count() != modifierTilemap.tileModifiers.Distinct(NavMeshModifierTilemap.TileModifierComparator).Count())
+            if (modifierTilemap.HasDuplicateTileModifiers())
             {
                 EditorGUILayout.HelpBox("There are duplicate Tile entries in the tilemap modifiers! Only the first will be used.", MessageType.Warning);
             }

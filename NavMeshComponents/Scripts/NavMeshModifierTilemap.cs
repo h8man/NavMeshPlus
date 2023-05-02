@@ -17,8 +17,6 @@ namespace NavMeshPlus.Components
     [ExecuteInEditMode]
     public class NavMeshModifierTilemap : MonoBehaviour
     {
-        public static readonly MatchingTileComparator TileModifierComparator = new MatchingTileComparator();
-
         [System.Serializable]
         public struct TileModifier
         {
@@ -27,8 +25,9 @@ namespace NavMeshPlus.Components
             [NavMeshArea] public int area;
         }
 
-        public class MatchingTileComparator : IEqualityComparer<TileModifier>
+        private class MatchingTileComparator : IEqualityComparer<TileModifier>
         {
+            public static readonly IEqualityComparer<TileModifier> Instance = new MatchingTileComparator();
             public bool Equals(TileModifier a, TileModifier b) => a.tile == b.tile;
             public int GetHashCode(TileModifier tileModifier) => tileModifier.GetHashCode();
         }
@@ -38,7 +37,7 @@ namespace NavMeshPlus.Components
 
         private Dictionary<TileBase, TileModifier> m_ModifierMap;
 
-        public Dictionary<TileBase, TileModifier> GetModifierMap() => m_TileModifiers.Where(mod => mod.tile != null).Distinct(TileModifierComparator).ToDictionary(mod => mod.tile);
+        public Dictionary<TileBase, TileModifier> GetModifierMap() => m_TileModifiers.Where(mod => mod.tile != null).Distinct(MatchingTileComparator.Instance).ToDictionary(mod => mod.tile);
 
         void OnEnable()
         {
@@ -51,8 +50,10 @@ namespace NavMeshPlus.Components
         }
 
 #if UNITY_EDITOR
-        public IEnumerable<TileModifier> tileModifiers => m_TileModifiers;
-
+        public bool HasDuplicateTileModifiers()
+        {
+            return m_TileModifiers.Count != m_TileModifiers.Distinct(MatchingTileComparator.Instance).Count();
+        }
 #endif // UNITY_EDITOR
 
         public virtual bool TryGetTileModifier(Vector3Int coords, Tilemap tilemap, out TileModifier modifier)
