@@ -7,7 +7,7 @@ namespace NavMeshPlus.Editors.Components
 {
     public static class NavMeshComponentsGUIUtility
     {
-        public static void AreaPopup(string labelName, SerializedProperty areaProperty)
+        public static void AreaPopup(Rect rect, string labelName, SerializedProperty areaProperty)
         {
             var areaIndex = -1;
             var areaNames = GameObjectUtility.GetNavMeshAreaNames();
@@ -20,7 +20,6 @@ namespace NavMeshPlus.Editors.Components
             ArrayUtility.Add(ref areaNames, "");
             ArrayUtility.Add(ref areaNames, "Open Area Settings...");
 
-            var rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
             EditorGUI.BeginProperty(rect, GUIContent.none, areaProperty);
 
             EditorGUI.BeginChangeCheck();
@@ -37,7 +36,20 @@ namespace NavMeshPlus.Editors.Components
             EditorGUI.EndProperty();
         }
 
-        public static void AgentTypePopup(string labelName, SerializedProperty agentTypeID)
+        public static bool IsAgentSelectionValid(SerializedProperty agentTypeID)
+        {
+            var count = NavMesh.GetSettingsCount();
+            for (var i = 0; i < count; i++)
+            {
+                var id = NavMesh.GetSettingsByIndex(i).agentTypeID;
+                var name = NavMesh.GetSettingsNameFromID(id);
+                if (id == agentTypeID.intValue)
+                    return true;
+            }
+            return false;
+        }
+
+        public static void AgentTypePopup(Rect rect, string labelName, SerializedProperty agentTypeID)
         {
             var index = -1;
             var count = NavMesh.GetSettingsCount();
@@ -56,10 +68,14 @@ namespace NavMeshPlus.Editors.Components
             bool validAgentType = index != -1;
             if (!validAgentType)
             {
-                EditorGUILayout.HelpBox("Agent Type invalid.", MessageType.Warning);
+                Rect warningRect = rect;
+                warningRect.height *= .5f;
+                warningRect.y += warningRect.height;
+                EditorGUI.HelpBox(warningRect, "Agent Type invalid.", MessageType.Warning);
+
+                rect.height *= .5f;
             }
 
-            var rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
             EditorGUI.BeginProperty(rect, GUIContent.none, agentTypeID);
 
             EditorGUI.BeginChangeCheck();

@@ -78,7 +78,7 @@ namespace NavMeshPlus.Editors.Components
         {
             serializedObject.Update();
 
-            NavMeshComponentsGUIUtility.AgentTypePopup("Agent Type", m_AgentTypeID);
+            EditorGUILayout.PropertyField(m_AgentTypeID);
             EditorGUILayout.Space();
 
             EditorGUILayout.PropertyField(m_StartPoint);
@@ -113,8 +113,7 @@ namespace NavMeshPlus.Editors.Components
             EditorGUILayout.PropertyField(m_CostModifier);
             EditorGUILayout.PropertyField(m_AutoUpdatePosition);
             EditorGUILayout.PropertyField(m_Bidirectional);
-
-            NavMeshComponentsGUIUtility.AreaPopup("Area Type", m_Area);
+            EditorGUILayout.PropertyField(m_Area);
 
             serializedObject.ApplyModifiedProperties();
 

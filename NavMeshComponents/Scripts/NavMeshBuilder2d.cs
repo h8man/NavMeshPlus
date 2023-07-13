@@ -290,14 +290,13 @@ namespace NavMeshPlus.Extensions
         {
             var bound = tilemap.cellBounds;
 
+            var modifierTilemap = tilemap.GetComponent<NavMeshModifierTilemap>();
+
             var vec3int = new Vector3Int(0, 0, 0);
 
             var size = new Vector3(tilemap.layoutGrid.cellSize.x, tilemap.layoutGrid.cellSize.y, 0);
             Mesh sharedMesh = null;
             Quaternion rot = default;
-
-            var src = new NavMeshBuildSource();
-            src.area = area;
 
             if (builder.useMeshPrefab != null)
             {
@@ -309,6 +308,9 @@ namespace NavMeshPlus.Extensions
             {
                 for (int j = bound.yMin; j < bound.yMax; j++)
                 {
+                    var src = new NavMeshBuildSource();
+                    src.area = area;
+
                     vec3int.x = i;
                     vec3int.y = j;
                     if (!tilemap.HasTile(vec3int))
@@ -317,6 +319,10 @@ namespace NavMeshPlus.Extensions
                     }
 
                     CollectTile(tilemap, builder, vec3int, size, sharedMesh, rot, ref src);
+                    if (modifierTilemap && modifierTilemap.TryGetTileModifier(vec3int, tilemap, out NavMeshModifierTilemap.TileModifier tileModifier))
+                    {
+                        src.area = tileModifier.overrideArea ? tileModifier.area : area;
+                    }    
                     sources.Add(src);
 
                     builder.lookupCallback?.Invoke(tilemap.GetInstantiatedObject(vec3int), src);

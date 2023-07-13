@@ -58,8 +58,7 @@ namespace NavMeshPlus.Editors.Components
 
             EditorGUILayout.PropertyField(m_Size);
             EditorGUILayout.PropertyField(m_Center);
-
-            NavMeshComponentsGUIUtility.AreaPopup("Area Type", m_Area);
+            EditorGUILayout.PropertyField(m_Area);
             NavMeshComponentsGUIUtility.AgentMaskPopup("Affected Agents", m_AffectedAgents);
             EditorGUILayout.Space();
 
