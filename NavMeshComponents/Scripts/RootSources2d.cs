@@ -16,7 +16,7 @@ namespace NavMeshPlus.Extensions
         [SerializeField]
         private List<GameObject> _rootSources;
 
-        public List<GameObject> RooySources { get => _rootSources; set => _rootSources = value; }
+        public List<GameObject> RootSources { get => _rootSources; set => _rootSources = value; }
 
         protected override void Awake()
         {
