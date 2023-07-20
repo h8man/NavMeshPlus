@@ -10,7 +10,7 @@ using UnityEngine.AI;
 namespace NavMeshPlus.Extensions
 {
     [ExecuteAlways]
-    [AddComponentMenu("Navigation/NavMesh RootSources2d", 30)]
+    [AddComponentMenu("Navigation/Navigation RootSources2d", 30)]
     public class RootSources2d: NavMeshExtension
     {
         [SerializeField]

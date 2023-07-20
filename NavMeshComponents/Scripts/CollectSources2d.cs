@@ -7,7 +7,7 @@ using UnityEngine.Tilemaps;
 namespace NavMeshPlus.Extensions
 {
     [ExecuteAlways]
-    [AddComponentMenu("Navigation/NavMesh CollectSources2d", 30)]
+    [AddComponentMenu("Navigation/Navigation CollectSources2d", 30)]
     public class CollectSources2d: NavMeshExtension
     {
         [SerializeField]

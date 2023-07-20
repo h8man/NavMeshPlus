@@ -6,7 +6,7 @@ using UnityEngine.AI;
 namespace NavMeshPlus.Extensions
 {
     [ExecuteAlways]
-    [AddComponentMenu("Navigation/NavMesh CacheSources2d", 30)]
+    [AddComponentMenu("Navigation/Navigation CacheSources2d", 30)]
     public class CollectSourcesCache2d : NavMeshExtension
     {
         List<NavMeshBuildSource> _sources;
