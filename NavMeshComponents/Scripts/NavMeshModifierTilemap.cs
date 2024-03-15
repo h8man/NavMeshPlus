@@ -32,6 +32,11 @@ namespace NavMeshPlus.Components
             public int GetHashCode(TileModifier tileModifier) => tileModifier.GetHashCode();
         }
 
+        // List of agent types the modifier is applied for.
+        // Special values: empty == None, m_AffectedAgents[0] =-1 == All.
+        [SerializeField]
+        List<int> m_AffectedAgents = new List<int>(new int[] { -1 });    // Default value is All
+
         [SerializeField]
         List<TileModifier> m_TileModifiers = new List<TileModifier>();
 
@@ -64,6 +69,15 @@ namespace NavMeshPlus.Components
             }
             modifier = new TileModifier();
             return false;
+        }
+
+        public bool AffectsAgentType(int agentTypeID)
+        {
+            if (m_AffectedAgents.Count == 0)
+                return false;
+            if (m_AffectedAgents[0] == -1)
+                return true;
+            return m_AffectedAgents.IndexOf(agentTypeID) != -1;
         }
     }
 }
