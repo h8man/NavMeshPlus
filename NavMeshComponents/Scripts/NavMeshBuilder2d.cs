@@ -292,6 +292,11 @@ namespace NavMeshPlus.Extensions
 
             var modifierTilemap = tilemap.GetComponent<NavMeshModifierTilemap>();
 
+            if (modifierTilemap && !modifierTilemap.AffectsAgentType(builder.agentID))
+            {
+                return;
+            }
+
             var vec3int = new Vector3Int(0, 0, 0);
 
             var size = new Vector3(tilemap.layoutGrid.cellSize.x, tilemap.layoutGrid.cellSize.y, 0);

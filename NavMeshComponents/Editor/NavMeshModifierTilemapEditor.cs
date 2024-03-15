@@ -18,10 +18,12 @@ namespace NavMeshPlus.Editors.Components
     [CustomEditor(typeof(NavMeshModifierTilemap))]
     class NavMeshModifierTilemapEditor : Editor
     {
+        SerializedProperty m_AffectedAgents;
         SerializedProperty m_TileModifiers;
 
         void OnEnable()
         {
+            m_AffectedAgents = serializedObject.FindProperty("m_AffectedAgents");
             m_TileModifiers = serializedObject.FindProperty("m_TileModifiers");
         }
 
@@ -30,6 +32,9 @@ namespace NavMeshPlus.Editors.Components
             NavMeshModifierTilemap modifierTilemap = target as NavMeshModifierTilemap;
 
             serializedObject.Update();
+
+            NavMeshComponentsGUIUtility.AgentMaskPopup("Affected Agents", m_AffectedAgents);
+
             EditorGUILayout.PropertyField(m_TileModifiers);
 
             if (modifierTilemap.HasDuplicateTileModifiers())
