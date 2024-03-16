@@ -34,6 +34,22 @@ How does it works:
 3. Implements source collector of tiles, sprites and 2d colliders
 4. Creates walkable mesh box from world bounds.
 5. Convert tiles, sprites and 2d colliders to sources as `NavMeshBuilder` would do.
+
+# Components & Extensions:
+- NavMeshLink
+- NavMeshModifier
+- NavMeshModifierVolume
+- NavMeshSurface:
+  - NavMeshCollectSources2d
+  - NavMeshCollectRootSources2d
+  - NavMeshCacheSources2d
+
+Utilities
+- NavMeshExtensionsProvider.cs
+- NavMeshBuilder2d.cs
+- NavMeshExtension.cs
+- NavMeshBuilderState.cs
+
 # Setup
 
 You can use this in two different ways: downloading this repository or adding it to your project's Package Manager manifest. [Git](https://git-scm.com/) must be installed and added to your path.
