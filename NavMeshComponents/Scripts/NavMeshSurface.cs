@@ -211,10 +211,36 @@ namespace NavMeshPlus.Components
                 AddData();
             }
 
-            return UpdateNavMesh(m_NavMeshData);
+            return UpdateNavMeshAsync(m_NavMeshData);
         }
 
-        public AsyncOperation UpdateNavMesh(NavMeshData data)
+        public void UpdateNavMesh()
+        {
+            UpdateNavMesh(navMeshData);
+        }
+
+        public void UpdateNavMesh(NavMeshData data)
+        {
+            using var builderState = new NavMeshBuilderState() { };
+
+            var sources = CollectSources(builderState);
+
+            // Use unscaled bounds - this differs in behaviour from e.g. collider components.
+            // But is similar to reflection probe - and since navmesh data has no scaling support - it is the right choice here.
+            var sourcesBounds = new Bounds(m_Center, Abs(m_Size));
+            if (m_CollectObjects == CollectObjects.All || m_CollectObjects == CollectObjects.Children)
+            {
+                sourcesBounds = CalculateWorldBounds(sources);
+            }
+            builderState.worldBounds = sourcesBounds;
+            for (int i = 0; i < NevMeshExtensions.Count; ++i)
+            {
+                NevMeshExtensions[i].PostCollectSources(this, sources, builderState);
+            }
+            NavMeshBuilder.UpdateNavMeshData(data, GetBuildSettings(), sources, sourcesBounds);
+        }
+
+        public AsyncOperation UpdateNavMeshAsync(NavMeshData data)
         {
             using var builderState = new NavMeshBuilderState() { };
 
