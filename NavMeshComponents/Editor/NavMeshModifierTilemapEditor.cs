@@ -89,6 +89,9 @@ namespace NavMeshPlus.Components.Editors
         [CustomPropertyDrawer(typeof(NavMeshModifierTilemap.TileModifier))]
         class TileModifierPropertyDrawer : PropertyDrawer
         {
+            
+            private static Dictionary<Object, Texture2D> Previews;
+            
             private Rect ClaimAdvance(ref Rect position, float height)
             {
                 Rect retVal = position;
@@ -117,10 +120,28 @@ namespace NavMeshPlus.Components.Editors
                     EditorGUI.PropertyField(tileRect, tileProperty);
                     TileBase tileBase = tileProperty.objectReferenceValue as TileBase;
                     TileData tileData = new TileData();
-                    tileBase?.GetTileData(Vector3Int.zero, null, ref tileData);
-                    if (tileData.sprite)
+                    Texture textureToDraw;
+                    try
                     {
-                        EditorGUI.DrawPreviewTexture(previewRect, tileData.sprite?.texture, null, ScaleMode.ScaleToFit, 0);
+                        tileBase?.GetTileData(Vector3Int.zero, null, ref tileData);
+                        textureToDraw = tileData.sprite?.texture;
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            
+                            textureToDraw = GetPreview(tileBase);
+                        }
+                        catch
+                        {
+                            textureToDraw = EditorGUIUtility.IconContent("console.erroricon.sml").image;
+                        }
+                    }
+
+                    if (textureToDraw)
+                    {
+                        EditorGUI.DrawPreviewTexture(previewRect, textureToDraw, null, ScaleMode.ScaleToFit, 0);
                     }
 
                     Rect toggleRect = ClaimAdvance(ref position, 20);
@@ -136,6 +157,26 @@ namespace NavMeshPlus.Components.Editors
                         EditorGUI.indentLevel--;
                     }
                 }
+            }
+
+            static Texture2D GetPreview(Object objectToPreview)
+            {
+                int maxResolution = 128;
+                Previews ??= new();
+                if (!Previews.TryGetValue(objectToPreview, out var preview) || preview == null)
+                {
+                    var path = AssetDatabase.GetAssetPath(objectToPreview);
+                    if (objectToPreview)
+                    {
+                        var editor = CreateEditor(objectToPreview);
+                        preview = editor.RenderStaticPreview(path, null, maxResolution, maxResolution);
+                        preview.Apply();
+                        DestroyImmediate(editor);
+                        Previews[objectToPreview] = preview;
+                    }
+                }
+
+                return preview;
             }
 
             public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
