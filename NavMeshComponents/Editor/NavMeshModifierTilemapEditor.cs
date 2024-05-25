@@ -162,7 +162,7 @@ namespace NavMeshPlus.Components.Editors
             static Texture2D GetPreview(Object objectToPreview)
             {
                 int maxResolution = 128;
-                Previews ??= new();
+                Previews ??= new Dictionary<Object, Texture2D>();
                 if (!Previews.TryGetValue(objectToPreview, out var preview) || preview == null)
                 {
                     var path = AssetDatabase.GetAssetPath(objectToPreview);
