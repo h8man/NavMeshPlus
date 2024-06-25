@@ -1,14 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor.Experimental.SceneManagement;
 using UnityEditor.SceneManagement;
 using UnityEngine.AI;
 using UnityEngine;
-using NavMeshPlus.Extensions;
 using UnityEditor;
-using NavMeshPlus.Components;
 
-namespace NavMeshPlus.Editors.Components
+namespace NavMeshPlus.Components.Editors
 {
     public class NavMeshAssetManager : ScriptableSingleton<NavMeshAssetManager>
     {

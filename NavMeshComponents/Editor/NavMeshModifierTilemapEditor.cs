@@ -1,18 +1,12 @@
-using NavMeshPlus.Components;
-using NavMeshPlus.Extensions;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEditor.AI;
-using UnityEngine.AI;
 using UnityEngine.Tilemaps;
 
 //***********************************************************************************
 // Contributed by author jl-randazzo github.com/jl-randazzo
 //***********************************************************************************
-namespace NavMeshPlus.Editors.Components
+namespace NavMeshPlus.Components.Editors
 {
     [CanEditMultipleObjects]
     [CustomEditor(typeof(NavMeshModifierTilemap))]
@@ -95,6 +89,9 @@ namespace NavMeshPlus.Editors.Components
         [CustomPropertyDrawer(typeof(NavMeshModifierTilemap.TileModifier))]
         class TileModifierPropertyDrawer : PropertyDrawer
         {
+            
+            private static Dictionary<Object, Texture2D> Previews;
+            
             private Rect ClaimAdvance(ref Rect position, float height)
             {
                 Rect retVal = position;
@@ -123,10 +120,28 @@ namespace NavMeshPlus.Editors.Components
                     EditorGUI.PropertyField(tileRect, tileProperty);
                     TileBase tileBase = tileProperty.objectReferenceValue as TileBase;
                     TileData tileData = new TileData();
-                    tileBase?.GetTileData(Vector3Int.zero, null, ref tileData);
-                    if (tileData.sprite)
+                    Texture textureToDraw;
+                    try
                     {
-                        EditorGUI.DrawPreviewTexture(previewRect, tileData.sprite?.texture, null, ScaleMode.ScaleToFit, 0);
+                        tileBase?.GetTileData(Vector3Int.zero, null, ref tileData);
+                        textureToDraw = tileData.sprite?.texture;
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            
+                            textureToDraw = GetPreview(tileBase);
+                        }
+                        catch
+                        {
+                            textureToDraw = EditorGUIUtility.IconContent("console.erroricon.sml").image;
+                        }
+                    }
+
+                    if (textureToDraw)
+                    {
+                        EditorGUI.DrawPreviewTexture(previewRect, textureToDraw, null, ScaleMode.ScaleToFit, 0);
                     }
 
                     Rect toggleRect = ClaimAdvance(ref position, 20);
@@ -142,6 +157,26 @@ namespace NavMeshPlus.Editors.Components
                         EditorGUI.indentLevel--;
                     }
                 }
+            }
+
+            static Texture2D GetPreview(Object objectToPreview)
+            {
+                int maxResolution = 128;
+                Previews ??= new Dictionary<Object, Texture2D>();
+                if (!Previews.TryGetValue(objectToPreview, out var preview) || preview == null)
+                {
+                    var path = AssetDatabase.GetAssetPath(objectToPreview);
+                    if (objectToPreview)
+                    {
+                        var editor = CreateEditor(objectToPreview);
+                        preview = editor.RenderStaticPreview(path, null, maxResolution, maxResolution);
+                        preview.Apply();
+                        DestroyImmediate(editor);
+                        Previews[objectToPreview] = preview;
+                    }
+                }
+
+                return preview;
             }
 
             public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

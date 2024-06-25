@@ -7,9 +7,9 @@ using UnityEngine.AI;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.AI;
-using NavMeshPlus.Components;
+using System.Reflection;
 
-namespace NavMeshPlus.Editors.Components
+namespace NavMeshPlus.Components.Editors
 {
     [CanEditMultipleObjects]
     [CustomEditor(typeof(NavMeshSurface))]
@@ -27,6 +27,7 @@ namespace NavMeshPlus.Editors.Components
         SerializedProperty m_TileSize;
         SerializedProperty m_UseGeometry;
         SerializedProperty m_VoxelSize;
+        SerializedProperty m_HideEditorLogs;
 
 #if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
         SerializedProperty m_NavMeshData;
@@ -73,17 +74,14 @@ namespace NavMeshPlus.Editors.Components
             m_TileSize = serializedObject.FindProperty("m_TileSize");
             m_UseGeometry = serializedObject.FindProperty("m_UseGeometry");
             m_VoxelSize = serializedObject.FindProperty("m_VoxelSize");
+            m_HideEditorLogs = serializedObject.FindProperty("m_HideEditorLogs");
 
 #if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
             m_NavMeshData = serializedObject.FindProperty("m_NavMeshData");
 #endif
-            NavMeshVisualizationSettings.showNavigation++;
+
         }
 
-        void OnDisable()
-        {
-            NavMeshVisualizationSettings.showNavigation--;
-        }
 
         Bounds GetBounds()
         {
@@ -192,6 +190,8 @@ namespace NavMeshPlus.Editors.Components
                 {
                     EditorGUILayout.PropertyField(m_BuildHeightMesh);
                 }
+
+                EditorGUILayout.PropertyField(m_HideEditorLogs);
 
                 EditorGUILayout.Space();
                 EditorGUI.indentLevel--;
@@ -305,16 +305,16 @@ namespace NavMeshPlus.Editors.Components
         [DrawGizmo(GizmoType.Selected | GizmoType.Active | GizmoType.Pickable)]
         static void RenderBoxGizmoSelected(NavMeshSurface navSurface, GizmoType gizmoType)
         {
+            //navSurface.navMeshDataInstance.FlagAsInSelectionHierarchy();
+            var method = navSurface.navMeshDataInstance.GetType().GetMethod("FlagAsInSelectionHierarchy", BindingFlags.NonPublic | BindingFlags.Instance);
+            method.Invoke(navSurface.navMeshDataInstance, null);
             RenderBoxGizmo(navSurface, gizmoType, true);
         }
 
         [DrawGizmo(GizmoType.NotInSelectionHierarchy | GizmoType.Pickable)]
         static void RenderBoxGizmoNotSelected(NavMeshSurface navSurface, GizmoType gizmoType)
         {
-            if (NavMeshVisualizationSettings.showNavigation > 0)
                 RenderBoxGizmo(navSurface, gizmoType, false);
-            else
-                Gizmos.DrawIcon(navSurface.transform.position, "NavMeshSurface Icon", true);
         }
 
         static void RenderBoxGizmo(NavMeshSurface navSurface, GizmoType gizmoType, bool selected)
