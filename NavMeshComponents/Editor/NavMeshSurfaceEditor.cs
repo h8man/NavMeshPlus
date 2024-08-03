@@ -80,8 +80,17 @@ namespace NavMeshPlus.Components.Editors
             m_NavMeshData = serializedObject.FindProperty("m_NavMeshData");
 #endif
 
+#if !UNITY_2022_2_OR_NEWER
+            NavMeshVisualizationSettings.showNavigation++;
+#endif
         }
 
+#if !UNITY_2022_2_OR_NEWER
+        void OnDisable()
+        {
+            NavMeshVisualizationSettings.showNavigation--;
+        }
+#endif
 
         Bounds GetBounds()
         {
@@ -302,20 +311,37 @@ namespace NavMeshPlus.Components.Editors
             }
         }
 
-        [DrawGizmo(GizmoType.Selected | GizmoType.Active | GizmoType.Pickable)]
-        static void RenderBoxGizmoSelected(NavMeshSurface navSurface, GizmoType gizmoType)
+#if UNITY_2022_2_OR_NEWER
+        [DrawGizmo(GizmoType.InSelectionHierarchy | GizmoType.Active | GizmoType.Pickable)]
+        static void RenderGizmoSelected(NavMeshSurface navSurface, GizmoType gizmoType)
         {
-            //navSurface.navMeshDataInstance.FlagAsInSelectionHierarchy();
+             //navSurface.navMeshDataInstance.FlagAsInSelectionHierarchy();
             var method = navSurface.navMeshDataInstance.GetType().GetMethod("FlagAsInSelectionHierarchy", BindingFlags.NonPublic | BindingFlags.Instance);
             method.Invoke(navSurface.navMeshDataInstance, null);
             RenderBoxGizmo(navSurface, gizmoType, true);
         }
 
         [DrawGizmo(GizmoType.NotInSelectionHierarchy | GizmoType.Pickable)]
+        static void RenderGizmoNotSelected(NavMeshSurface navSurface, GizmoType gizmoType)
+        {
+            RenderBoxGizmo(navSurface, gizmoType, false);
+        }
+#else
+        [DrawGizmo(GizmoType.Selected | GizmoType.Active | GizmoType.Pickable)]
+        static void RenderBoxGizmoSelected(NavMeshSurface navSurface, GizmoType gizmoType)
+        {
+            DrawBoundingBoxGizmoAndIcon(navSurface, true);
+        }
+
+        [DrawGizmo(GizmoType.NotInSelectionHierarchy | GizmoType.Pickable)]
         static void RenderBoxGizmoNotSelected(NavMeshSurface navSurface, GizmoType gizmoType)
         {
-                RenderBoxGizmo(navSurface, gizmoType, false);
+            if (NavMeshVisualizationSettings.showNavigation > 0)
+                DrawBoundingBoxGizmoAndIcon(navSurface, false);
+            else
+                Gizmos.DrawIcon(navSurface.transform.position, "NavMeshSurface Icon", true);
         }
+#endif
 
         static void RenderBoxGizmo(NavMeshSurface navSurface, GizmoType gizmoType, bool selected)
         {
