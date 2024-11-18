@@ -27,6 +27,7 @@ namespace NavMeshPlus.Components.Editors
         SerializedProperty m_TileSize;
         SerializedProperty m_UseGeometry;
         SerializedProperty m_VoxelSize;
+        SerializedProperty m_MinRegionArea;
         SerializedProperty m_HideEditorLogs;
 
 #if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
@@ -35,7 +36,7 @@ namespace NavMeshPlus.Components.Editors
         class Styles
         {
             public readonly GUIContent m_LayerMask = new GUIContent("Include Layers");
-
+			public readonly GUIContent m_MinRegionArea = new GUIContent("Minimum Region Area");
             public readonly GUIContent m_ShowInputGeom = new GUIContent("Show Input Geom");
             public readonly GUIContent m_ShowVoxels = new GUIContent("Show Voxels");
             public readonly GUIContent m_ShowRegions = new GUIContent("Show Regions");
@@ -74,6 +75,7 @@ namespace NavMeshPlus.Components.Editors
             m_TileSize = serializedObject.FindProperty("m_TileSize");
             m_UseGeometry = serializedObject.FindProperty("m_UseGeometry");
             m_VoxelSize = serializedObject.FindProperty("m_VoxelSize");
+            m_MinRegionArea = serializedObject.FindProperty("m_MinRegionArea");
             m_HideEditorLogs = serializedObject.FindProperty("m_HideEditorLogs");
 
 #if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
@@ -193,6 +195,7 @@ namespace NavMeshPlus.Components.Editors
                     EditorGUI.indentLevel--;
                 }
 
+                EditorGUILayout.PropertyField(m_MinRegionArea, s_Styles.m_MinRegionArea);
 
                 // Height mesh
                 using (new EditorGUI.DisabledScope(true))
