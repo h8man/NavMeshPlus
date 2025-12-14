@@ -36,6 +36,19 @@ namespace NavMeshPlus.Extensions
             base.OnDestroy();
         }
 
+        public bool AddSource(GameObject gameObject)
+        {
+            var res = _lookup.ContainsKey(gameObject);
+            if (res)
+            {
+                return UpdateSource(gameObject);
+            }
+            NavMeshBuilder2d.CollectSources(gameObject, _sources, _state);
+
+            IsDirty = true;
+            return true;
+        }
+
         public bool AddSource(GameObject gameObject, NavMeshBuildSource source)
         {
             var res = _lookup.ContainsKey(gameObject);
@@ -48,7 +61,7 @@ namespace NavMeshPlus.Extensions
             IsDirty = true;
             return true;
         }
-        public bool UpdateSource(GameObject gameObject)
+        public bool UpdateSource(GameObject gameObject, int? area = null)
         {
             var res = _lookup.ContainsKey(gameObject);
             if(res)
@@ -59,6 +72,10 @@ namespace NavMeshPlus.Extensions
                 if (idx >= 0)
                 {
                     source.transform = Matrix4x4.TRS(gameObject.transform.position, gameObject.transform.rotation, gameObject.transform.lossyScale);
+                    if (area.HasValue)
+                    {
+                        source.area = area.Value;
+                    }
                     _sources[idx] = source;
                     _lookup[gameObject] = source;
                 }
