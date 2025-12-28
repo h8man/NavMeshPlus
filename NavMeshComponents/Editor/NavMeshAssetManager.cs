@@ -121,7 +121,7 @@ namespace NavMeshPlus.Components.Editors
                 var oper = new AsyncBakeOperation();
 
                 oper.bakeData = InitializeBakeData(surf);
-                oper.bakeOperation = surf.UpdateNavMesh(oper.bakeData);
+                oper.bakeOperation = surf.UpdateNavMeshAsync(oper.bakeData);
                 oper.surface = surf;
 
                 m_BakeOperations.Add(oper);
