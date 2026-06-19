@@ -22,6 +22,15 @@ namespace NavMeshPlus.Components.Editors
         static Color s_HandleColor = new Color(255f, 167f, 39f, 210f) / 255;
         static Color s_HandleColorDisabled = new Color(255f * 0.75f, 167f * 0.75f, 39f * 0.75f, 100f) / 255;
 
+        static int GetObjectId(Object obj)
+        {
+#if UNITY_6000_0_OR_NEWER
+            return obj.GetEntityId().GetHashCode();
+#else
+            return obj.GetInstanceID();
+#endif
+        }
+
         void OnEnable()
         {
             m_AgentTypeID = serializedObject.FindProperty("m_AgentTypeID");
@@ -206,7 +215,7 @@ namespace NavMeshPlus.Components.Editors
 
             Vector3 pos;
 
-            if (navLink.GetInstanceID() == s_SelectedID && s_SelectedPoint == 0)
+            if (GetObjectId(navLink) == s_SelectedID && s_SelectedPoint == 0)
             {
                 EditorGUI.BeginChangeCheck();
                 Handles.CubeHandleCap(0, startPt, zup, 0.1f * startSize, Event.current.type);
@@ -222,11 +231,11 @@ namespace NavMeshPlus.Components.Editors
                 if (Handles.Button(startPt, zup, 0.1f * startSize, 0.1f * startSize, Handles.CubeHandleCap))
                 {
                     s_SelectedPoint = 0;
-                    s_SelectedID = navLink.GetInstanceID();
+                    s_SelectedID = GetObjectId(navLink);
                 }
             }
 
-            if (navLink.GetInstanceID() == s_SelectedID && s_SelectedPoint == 1)
+            if (GetObjectId(navLink) == s_SelectedID && s_SelectedPoint == 1)
             {
                 EditorGUI.BeginChangeCheck();
                 Handles.CubeHandleCap(0, endPt, zup, 0.1f * startSize, Event.current.type);
@@ -242,7 +251,7 @@ namespace NavMeshPlus.Components.Editors
                 if (Handles.Button(endPt, zup, 0.1f * endSize, 0.1f * endSize, Handles.CubeHandleCap))
                 {
                     s_SelectedPoint = 1;
-                    s_SelectedID = navLink.GetInstanceID();
+                    s_SelectedID = GetObjectId(navLink);
                 }
             }
 
