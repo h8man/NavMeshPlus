@@ -190,6 +190,11 @@ namespace NavMeshPlus.Extensions
         {
             if (builder.CollectGeometry == NavMeshCollectGeometry.PhysicsColliders)
             {
+                var tilemap = modifier.GetComponent<Tilemap>();
+                if (tilemap != null)
+                {
+                    CollectTileSources(sources, tilemap, area, builder, true);
+                }
                 var collider = modifier.GetComponent<Collider2D>();
                 if (collider != null)
                 {
@@ -286,7 +291,7 @@ namespace NavMeshPlus.Extensions
             builder.lookupCallback?.Invoke(collider.gameObject, src);
         }
 
-        public static void CollectTileSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area, NavMeshBuilder2dState builder)
+        public static void CollectTileSources(List<NavMeshBuildSource> sources, Tilemap tilemap, int area, NavMeshBuilder2dState builder, bool onlyTileModifier = false)
         {
             var bound = tilemap.cellBounds;
 
@@ -323,11 +328,19 @@ namespace NavMeshPlus.Extensions
                         continue;
                     }
 
+                    bool hadTileModifier = false;
                     CollectTile(tilemap, builder, vec3int, size, sharedMesh, rot, ref src);
                     if (modifierTilemap && modifierTilemap.TryGetTileModifier(vec3int, tilemap, out NavMeshModifierTilemap.TileModifier tileModifier))
                     {
                         src.area = tileModifier.overrideArea ? tileModifier.area : area;
-                    }    
+                        hadTileModifier = tileModifier.overrideArea;
+                    }
+
+                    if (onlyTileModifier && !hadTileModifier)
+                    {
+                        continue;
+                    }
+                    
                     sources.Add(src);
 
                     builder.lookupCallback?.Invoke(tilemap.GetInstantiatedObject(vec3int), src);
