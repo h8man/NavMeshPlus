@@ -7,13 +7,31 @@ namespace NavMeshPlus.Components.Editors
 {
     public static class NavMeshComponentsGUIUtility
     {
+        static string[] GetAreaNames()
+        {
+#if UNITY_6000_0_OR_NEWER
+            return NavMesh.GetAreaNames();
+#else
+            return GameObjectUtility.GetNavMeshAreaNames();
+#endif
+        }
+
+        static int GetAreaFromName(string areaName)
+        {
+#if UNITY_6000_0_OR_NEWER
+            return NavMesh.GetAreaFromName(areaName);
+#else
+            return GameObjectUtility.GetNavMeshAreaFromName(areaName);
+#endif
+        }
+
         public static void AreaPopup(Rect rect, string labelName, SerializedProperty areaProperty)
         {
             var areaIndex = -1;
-            var areaNames = GameObjectUtility.GetNavMeshAreaNames();
+            var areaNames = GetAreaNames();
             for (var i = 0; i < areaNames.Length; i++)
             {
-                var areaValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[i]);
+                var areaValue = GetAreaFromName(areaNames[i]);
                 if (areaValue == areaProperty.intValue)
                     areaIndex = i;
             }
@@ -28,7 +46,7 @@ namespace NavMeshPlus.Components.Editors
             if (EditorGUI.EndChangeCheck())
             {
                 if (areaIndex >= 0 && areaIndex < areaNames.Length - 2)
-                    areaProperty.intValue = GameObjectUtility.GetNavMeshAreaFromName(areaNames[areaIndex]);
+                    areaProperty.intValue = GetAreaFromName(areaNames[areaIndex]);
                 else if (areaIndex == areaNames.Length - 1)
                     NavMeshEditorHelpers.OpenAreaSettings();
             }

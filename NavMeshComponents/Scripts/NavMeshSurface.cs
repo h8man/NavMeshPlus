@@ -318,6 +318,26 @@ namespace NavMeshPlus.Components
             }
         }
 
+#if UNITY_EDITOR
+        public static void CollectSourcesInStage(Transform root, int includedLayerMask, NavMeshCollectGeometry geometry, int defaultArea, List<NavMeshBuildMarkup> markups, UnityEngine.SceneManagement.Scene stageProxy, List<NavMeshBuildSource> results)
+        {
+#if UNITY_6000_0_OR_NEWER
+            UnityEditor.AI.NavMeshEditorHelpers.CollectSourcesInStage(root, includedLayerMask, geometry, defaultArea, false, markups, false, stageProxy, results);
+#else
+            UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(root, includedLayerMask, geometry, defaultArea, false, markups, false, stageProxy, results);
+#endif
+        }
+
+        public static void CollectSourcesInStage(Bounds includedWorldBounds, int includedLayerMask, NavMeshCollectGeometry geometry, int defaultArea, List<NavMeshBuildMarkup> markups, UnityEngine.SceneManagement.Scene stageProxy, List<NavMeshBuildSource> results)
+        {
+#if UNITY_6000_0_OR_NEWER
+            UnityEditor.AI.NavMeshEditorHelpers.CollectSourcesInStage(includedWorldBounds, includedLayerMask, geometry, defaultArea, false, markups, false, stageProxy, results);
+#else
+            UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(includedWorldBounds, includedLayerMask, geometry, defaultArea, false, markups, false, stageProxy, results);
+#endif
+        }
+#endif
+
         List<NavMeshBuildSource> CollectSources(NavMeshBuilderState builderState)
         {
             var sources = new List<NavMeshBuildSource>();
@@ -353,21 +373,18 @@ namespace NavMeshPlus.Components
             {
                 if (m_CollectObjects == CollectObjects.All)
                 {
-                    UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
-                        null, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
+                    CollectSourcesInStage(null, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
                 else if (m_CollectObjects == CollectObjects.Children)
                 {
-                    UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
-                        transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
+                    CollectSourcesInStage(transform, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
                 else if (m_CollectObjects == CollectObjects.Volume)
                 {
                     Matrix4x4 localToWorld = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
                     var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
 
-                    UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
-                        worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
+                    CollectSourcesInStage(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, gameObject.scene, sources);
                 }
                 for (int i = 0; i < NavMeshExtensions.Count; ++i)
                 {
