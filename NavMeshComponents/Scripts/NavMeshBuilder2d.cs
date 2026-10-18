@@ -328,6 +328,12 @@ namespace NavMeshPlus.Extensions
                     }
 
                     CollectTile(tilemap, builder, vec3int, size, sharedMesh, rot, ref src);
+                    // CollectTile leaves `src` untouched when the tile has no sprite / mesh. A default
+                    // NavMeshBuildSource has shape Mesh (0) and a null sourceObject, so skip it.
+                    if (src.shape == NavMeshBuildSourceShape.Mesh && src.sourceObject == null)
+                    {
+                        continue;
+                    }
                     if (modifierTilemap && modifierTilemap.TryGetTileModifier(vec3int, tilemap, out NavMeshModifierTilemap.TileModifier tileModifier))
                     {
                         src.area = tileModifier.overrideArea ? tileModifier.area : area;
