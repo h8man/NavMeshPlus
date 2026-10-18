@@ -51,7 +51,7 @@ namespace NavMeshPlus.Extensions
 
         public void Remove(NavMeshExtension extension)
         {
-            _extensions.RemoveAll(x => x.extension = extension);
+            _extensions.RemoveAll(x => x.extension == extension);
         }
     }
 }
