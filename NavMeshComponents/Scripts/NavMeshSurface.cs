@@ -460,6 +460,7 @@ namespace NavMeshPlus.Components
                     case NavMeshBuildSourceShape.Mesh:
                     {
                         var m = src.sourceObject as Mesh;
+                        if (m == null) break; // e.g. a default-initialised source: shape Mesh (0) with no mesh
                         result.Encapsulate(GetWorldBounds(worldToLocal * src.transform, m.bounds));
                         break;
                     }
