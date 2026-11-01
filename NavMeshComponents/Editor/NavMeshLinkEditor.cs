@@ -24,7 +24,7 @@ namespace NavMeshPlus.Components.Editors
 
         static int GetObjectId(Object obj)
         {
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
             return obj.GetEntityId().GetHashCode();
 #else
             return obj.GetInstanceID();
